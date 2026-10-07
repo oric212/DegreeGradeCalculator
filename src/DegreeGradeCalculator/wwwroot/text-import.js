@@ -14,12 +14,18 @@ Object.assign(words.en, {
   clearText: "Clear",
   reviewTitle: "Review courses",
   reviewHelp:
-    "Edit any field. Empty destinations use the defaults above. Missing years and standard semesters will be created only after confirmation. Parsing has not saved any courses.",
+    "Check where each course will be saved, then review its details below. Nothing is saved until you confirm.",
   targetDegree: "Target degree",
-  defaultYear: "Default year",
-  calendarMapping: "Academic year mapping",
+  defaultYear: "Year for missing destinations",
+  calendarMapping: "Match transcript years to your degree",
+  detectedYearsHelp: "Years were detected in your text. Choose which degree year each one belongs to; this applies to all its courses.",
+  transcriptYear: "Year in transcript", degreeYear: "Year in degree", individualYears: "Set per course",
+  detectedSemesterHelp: "Detected semesters are kept for each course. You can change an individual destination below. Missing years or semesters will be created when you confirm.",
+  fallbackTitle: "Courses with missing year or semester",
+  fallbackHelp: "These choices fill in missing information only. Detected years and semesters stay as shown below.",
+  fallbackUnused: "Every included course already has a year and semester. These choices are currently unused.",
   calendarMappingHelp: "Suggested destinations are editable. Changing a calendar year updates all its courses; you can still change individual courses below.",
-  defaultSemester: "Default semester",
+  defaultSemester: "Semester for missing destinations",
   useDefault: "Use default",
   includeRow: "Include in import",
   sourceLine: "Original text",
@@ -95,12 +101,18 @@ Object.assign(words.he, {
   clearText: "ניקוי",
   reviewTitle: "בדיקת הקורסים",
   reviewHelp:
-    "ניתן לערוך כל שדה. יעד ריק משתמש בברירת המחדל שלמעלה. שנים וסמסטרים רגילים חסרים ייווצרו רק לאחר אישור. הפענוח עדיין לא שמר קורסים.",
+    "בדקו לאן ייובא כל קורס, ואז עברו על הפרטים בהמשך. הקורסים יישמרו רק לאחר אישור.",
   targetDegree: "תואר יעד",
-  defaultYear: "שנת ברירת מחדל",
-  calendarMapping: "מיפוי שנות לימודים",
+  defaultYear: "שנה למידע חסר",
+  calendarMapping: "התאמת שנות הגיליון לשנים בתואר",
+  detectedYearsHelp: "זוהו שנות לימודים בטקסט. בחרו לאיזו שנה בתואר שייכת כל שנת לימודים; הבחירה תחול על כל הקורסים שלה.",
+  transcriptYear: "שנה בגיליון", degreeYear: "שנה בתואר", individualYears: "לפי קורס",
+  detectedSemesterHelp: "הסמסטרים שזוהו נשמרים לכל קורס. ניתן לשנות יעד של קורס בהמשך. שנים או סמסטרים חסרים ייווצרו בעת האישור.",
+  fallbackTitle: "קורסים ללא שנה או סמסטר",
+  fallbackHelp: "הבחירות האלה משלימות רק מידע חסר. שנים וסמסטרים שזוהו נשארים כפי שמוצג בהמשך.",
+  fallbackUnused: "לכל הקורסים שנכללו כבר יש שנה וסמסטר. הבחירות האלה אינן בשימוש כרגע.",
   calendarMappingHelp: "היעדים המוצעים ניתנים לשינוי. שינוי שנת לימודים מעדכן את כל הקורסים שלה; ניתן לשנות גם קורס בודד בהמשך.",
-  defaultSemester: "סמסטר ברירת מחדל",
+  defaultSemester: "סמסטר למידע חסר",
   useDefault: "ברירת מחדל",
   includeRow: "לכלול בייבוא",
   sourceLine: "הטקסט המקורי",
@@ -201,7 +213,7 @@ function semesterOptions(year, value, allowDefault) {
 function renderTextImport() {
   const draft = importDraft;
   $("#app").innerHTML =
-    `<div class="heading"><div>${button("leaveTextImport", t("back"))}<h1>${t("textImport")}</h1><p>${t("pasteHelp")}</p></div></div><section class="card"><div class="paste-heading"><h2>${t("pasteTitle")}</h2></div><details class="format-guide"><summary>${t("supportedFormats")}</summary><div><p>${t("formatsTables")}</p><pre dir="ltr">Creative Coding | 3 | 81</pre><p>${t("formatsLists")}</p><pre dir="ltr">Creative Coding 3 credits 81</pre><p>${t("formatsTranscripts")}</p><pre dir="auto">שנת לימודים 2030&#10;א 410101 יצירה דיגיטלית שיעור 3.0 3.0 81</pre><pre dir="ltr">ACADEMIC YEAR 2030&#10;Fall 410101 Creative Coding 3.0 81</pre><p>${t("formatsYears")}</p></div></details>${label(t("pasteLabel"), `<textarea id="pasteText" maxlength="50000" rows="7" dir="auto">${esc(draft.text)}</textarea>`)}<div class="actions">${button("parseText", t("parseText"), 'class="primary"')}${button("clearText", t("clearText"))}</div><p id="parseError" role="alert"></p></section>${draft.result ? `<section class="card"><h2>${t("reviewTitle")}</h2><p>${t("reviewHelp")}</p><div class="import-defaults">${label(t("targetDegree"), `<select id="importDegree">${data.degrees.map((d) => `<option value="${d.id}" ${d.id === draft.degreeId ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>`)}${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(draft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(draft.defaultYear, draft.defaultSemester, false)}</select>`)}</div>${calendarMappingPanel()}${[...new Set(draft.result.warnings.map(w => w.code).filter(code => !["calendar-years-mapped", "unparsed-line"].includes(code)))].map(code => `<p class="import-note">${esc(t(code))}</p>`).join("")}${draft.result.mappingRecommended && draft.result.columnCount > 0 ? `<details class="mapping"><summary>${t("advancedMapping")}</summary><p>${t("mappingHelp")}</p><div class="import-defaults">${draft.result.columnMapping.map((m, i) => label(t("column") + " " + (i + 1), `<select data-map="${i}"><option value="">${t("ignoreColumn")}</option>${["name", "credits", "grade", "year", "semester"].map((field) => `<option value="${field}" ${m === field ? "selected" : ""}>${t(field === "credits" ? "creditPoints" : field)}</option>`).join("")}</select>`)).join("")}</div>${button("applyMapping", t("applyMapping"))}</details>` : ""}</section><form id="reviewForm"><div id="reviewRows">${groupedReviewCards()}</div></form>${draft.result.unparsedLines.length ? `<section class="card"><details class="unparsed-section"><summary>${t("unparsedTitle")} (${draft.result.unparsedLines.length})</summary><p>${t("unparsedHelp")}</p>${draft.result.unparsedLines.map((l, i) => `<div class="unparsed-line"><pre>${esc(l.text)}</pre>${button("recoverLine", t("addReviewRow"), `data-line="${i}"`)}</div>`).join("")}</details></section>` : ""}<section class="card"><h3>${t("normalizedTitle")}</h3><p id="previewError" role="status"></p><div id="duplicateWarnings"></div>${label(t("normalizedTitle"), `<textarea id="normalizedText" readonly rows="4" dir="auto"></textarea>`)}<div class="actions">${button("copyNormalized", t("copyNormalized"))}${button("reviewImport", t("importCourses"), 'class="primary"')}</div><p id="importCount" aria-live="polite"></p></section>` : ""}`;
+    `<div class="heading"><div>${button("leaveTextImport", t("back"))}<h1>${t("textImport")}</h1><p>${t("pasteHelp")}</p></div></div><section class="card"><div class="paste-heading"><h2>${t("pasteTitle")}</h2></div><details class="format-guide"><summary>${t("supportedFormats")}</summary><div><p>${t("formatsTables")}</p><pre dir="ltr">Creative Coding | 3 | 81</pre><p>${t("formatsLists")}</p><pre dir="ltr">Creative Coding 3 credits 81</pre><p>${t("formatsTranscripts")}</p><pre dir="auto">שנת לימודים 2030&#10;א 410101 יצירה דיגיטלית שיעור 3.0 3.0 81</pre><pre dir="ltr">ACADEMIC YEAR 2030&#10;Fall 410101 Creative Coding 3.0 81</pre><p>${t("formatsYears")}</p></div></details>${label(t("pasteLabel"), `<textarea id="pasteText" maxlength="50000" rows="7" dir="auto">${esc(draft.text)}</textarea>`)}<div class="actions">${button("parseText", t("parseText"), 'class="primary"')}${button("clearText", t("clearText"))}</div><p id="parseError" role="alert"></p></section>${draft.result ? `<section class="card"><h2>${t("reviewTitle")}</h2><p>${t("reviewHelp")}</p><div class="import-target">${label(t("targetDegree"), `<select id="importDegree">${data.degrees.map((d) => `<option value="${d.id}" ${d.id === draft.degreeId ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>`)}</div>${calendarMappingPanel()}${fallbackDestinationPanel()}${[...new Set(draft.result.warnings.map(w => w.code).filter(code => !["calendar-years-mapped", "unparsed-line"].includes(code)))].map(code => `<p class="import-note">${esc(t(code))}</p>`).join("")}${draft.result.mappingRecommended && draft.result.columnCount > 0 ? `<details class="mapping"><summary>${t("advancedMapping")}</summary><p>${t("mappingHelp")}</p><div class="import-defaults">${draft.result.columnMapping.map((m, i) => label(t("column") + " " + (i + 1), `<select data-map="${i}"><option value="">${t("ignoreColumn")}</option>${["name", "credits", "grade", "year", "semester"].map((field) => `<option value="${field}" ${m === field ? "selected" : ""}>${t(field === "credits" ? "creditPoints" : field)}</option>`).join("")}</select>`)).join("")}</div>${button("applyMapping", t("applyMapping"))}</details>` : ""}</section><form id="reviewForm"><div id="reviewRows">${groupedReviewCards()}</div></form>${draft.result.unparsedLines.length ? `<section class="card"><details class="unparsed-section"><summary>${t("unparsedTitle")} (${draft.result.unparsedLines.length})</summary><p>${t("unparsedHelp")}</p>${draft.result.unparsedLines.map((l, i) => `<div class="unparsed-line"><pre>${esc(l.text)}</pre>${button("recoverLine", t("addReviewRow"), `data-line="${i}"`)}</div>`).join("")}</details></section>` : ""}<section class="card"><h3>${t("normalizedTitle")}</h3><p id="previewError" role="status"></p><div id="duplicateWarnings"></div>${label(t("normalizedTitle"), `<textarea id="normalizedText" readonly rows="4" dir="auto"></textarea>`)}<div class="actions">${button("copyNormalized", t("copyNormalized"))}${button("reviewImport", t("importCourses"), 'class="primary"')}</div><p id="importCount" aria-live="polite"></p></section>` : ""}`;
   if (draft.result) {
     validateReview();
     refreshImportPreview();
@@ -210,11 +222,15 @@ function renderTextImport() {
 function calendarMappingPanel() {
   const years = [...new Set(importDraft.rows.map(r => r.rawValues?.calendarYear).filter(Boolean))].sort();
   if (!years.length) return "";
-  return `<details class="mapping" open><summary>${t("calendarMapping")}</summary><p>${t("calendarMappingHelp")}</p><div class="import-defaults">${years.map(calendar => {
+  return `<section class="calendar-destinations"><h3>${t("calendarMapping")}</h3><p>${t("detectedYearsHelp")}</p><div class="calendar-grid">${years.map(calendar => {
     const rows = importDraft.rows.filter(r => r.rawValues?.calendarYear === calendar);
     const value = rows.every(r => r.year === rows[0].year) ? rows[0].year : null;
-    return label(calendar, `<select data-calendar-year="${calendar}">${value === null ? `<option value="" selected>—</option>` : ""}${yearOptions(value, false)}</select>`);
-  }).join("")}</div></details>`;
+    return `<div class="calendar-destination"><div><span class="destination-label">${t("transcriptYear")}</span><strong><bdi>${esc(calendar)}</bdi></strong><small>${rows.length} ${t("courses")}</small></div><span class="mapping-arrow" aria-hidden="true">${data.language === "he" ? "←" : "→"}</span>${label(t("degreeYear"), `<select data-calendar-year="${calendar}" aria-label="${esc(calendar + ' · ' + t('degreeYear'))}">${value === null ? `<option value="" selected>${t("individualYears")}</option>` : ""}${yearOptions(value, false)}</select>`)}</div>`;
+  }).join("")}</div><p class="destination-note">${t("detectedSemesterHelp")}</p></section>`;
+}
+function fallbackDestinationPanel() {
+  const missing = importDraft.rows.filter(row => row.included && (!row.year || !row.semester)).length;
+  return `<details class="fallback-destinations" ${missing ? "open" : ""}><summary>${t("fallbackTitle")}${missing ? ` · ${missing} ${t("courses")}` : ""}</summary><p>${t(missing ? "fallbackHelp" : "fallbackUnused")}</p><div class="fallback-fields">${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(importDraft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(importDraft.defaultYear, importDraft.defaultSemester, false)}</select>`)}</div></details>`;
 }
 function groupedReviewCards() {
   const years = new Map();

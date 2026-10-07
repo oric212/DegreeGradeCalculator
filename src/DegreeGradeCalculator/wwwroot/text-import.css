@@ -117,3 +117,18 @@ details summary {
 .import-update { padding: 12px 0; border-bottom: 1px solid #dce7f5; }
 .import-update small { display: block; color: #71839b; margin-top: 4px; }
 .import-update p { margin: 8px 0; }
+.import-target { max-width: 440px; }
+.calendar-destinations { margin-top: 24px; }
+.calendar-destinations h3 { font-size: 17px; }
+.calendar-destinations > p, .fallback-destinations > p { font-size: 14px; margin: 8px 0 16px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.calendar-destination { display: grid; grid-template-columns: 1fr auto 1.2fr; align-items: center; gap: 16px; padding: 14px 18px; background: #f5f8fd; border: 1px solid #e0e8f3; border-radius: 12px; }
+.calendar-destination strong, .calendar-destination small, .destination-label { display: block; }
+.calendar-destination strong { font-size: 20px; }
+.calendar-destination small, .destination-label { font-size: 12px; color: #71839b; }
+.calendar-destination label { margin: 0; }
+.mapping-arrow { color: #71839b; }
+.destination-note { color: #71839b; }
+.fallback-destinations { border-top: 1px solid #e0e8f3; padding-top: 16px; margin-top: 18px; }
+.fallback-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 600px; }
+@media (max-width: 650px) { .calendar-grid, .fallback-fields { grid-template-columns: 1fr; } }
