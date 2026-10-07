@@ -20,6 +20,8 @@ Open `release/parser-win-x64/DegreeGradeCalculator.exe` by double-clicking. Keep
 
 ## Calculations
 
+Repeated courses with exactly the same name use only the latest graded attempt within each summary (academic year, semester, then row order). A newer blank grade does not replace an earlier numeric grade. Its credits and grade distribution count once; all attempts remain visible.
+
 Weighted average = `sum(final grade × credits) / sum(graded course credits)`. Blank grades count toward course counts but not averages, graded credits, or distributions. There is no pass/fail threshold: 45 counts normally. Averages display two decimal places; empty averages display an em dash.
 
 Component grades are `sum(weight percentage × component grade / 100)`, rounded to the nearest whole number with halves rounded upward. That whole-number result enters all summaries. Every component needs a grade before a final grade exists. Weights below 100% are used as entered; weights above 100% show a warning and are **not normalized**. For example, 70% × 80 + 30% × 90 + 10% × 100 = 93. Input grades range from 0 to 100; bonus-weighted final grades can exceed 100.

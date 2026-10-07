@@ -177,7 +177,9 @@ const final = (c) => {
 const courses = (d) =>
   d.years.flatMap((y) => y.semesters.flatMap((s) => s.courses));
 function summary(cs) {
-  const graded = cs.filter((c) => final(c) !== null),
+  const latest = new Map();
+  cs.filter((c) => final(c) !== null).forEach((c) => latest.set(c.name ?? c, c));
+  const graded = [...latest.values()],
     creditFraction = exactSum(graded.map((c) => fraction(c.credits))),
     credits = Number(creditFraction[0]) / Number(creditFraction[1]),
     bins = [0, 0, 0, 0, 0];

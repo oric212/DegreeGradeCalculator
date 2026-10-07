@@ -3,9 +3,19 @@ using System.Text.Json;
 using Xunit;
 public class CalculationTests
 {
+    [Fact] public void LatestGradedExactNameRepeatCountsOnce()
+    {
+        var rows = new[] { new Course { Name = "Math", Credits = 4, Grade = 90 },
+            new Course { Name = "Math", Credits = 3, Grade = 60 },
+            new Course { Name = "Math", Credits = 5, Grade = null },
+            new Course { Name = "math", Credits = 2, Grade = 80 } };
+        var summary = Calculation.Summarize(rows);
+        Assert.Equal(68, summary.Average); Assert.Equal(5, summary.Credits);
+        Assert.Equal(4, summary.Courses); Assert.Equal(2, summary.Distribution.Sum());
+    }
     [Fact] public void MissingBackupFieldsRejected() => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Backup>("{}", Store.Json));
     [Fact] public void MissingCourseGradeRejected() => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Course>("{\"name\":\"Course\",\"credits\":5}", Store.Json));
-    private static Course C(decimal credits, decimal? grade) => new() { Name = "Course", Credits = credits, Grade = grade };
+    private static Course C(decimal credits, decimal? grade) => new() { Name = $"Course {credits}/{grade}", Credits = credits, Grade = grade };
     private static Course Components(params (decimal weight, decimal? grade)[] ps) => new() { Name = "Components", Credits = 5, UsesComponents = true, Components = ps.Select(p => new Component { Name = "Part", Weight = p.weight, Grade = p.grade }).ToList() };
     private static Backup Fixture() => new() { Degrees = [new Degree { Name = "Computer science", Years = [new AcademicYear { Semesters = [new Semester { Courses = [C(5, 80), C(4, 90), C(2.5m, null), Components((70, 55), (30, 98))] }] }] }] };
     [Fact] public void WeightedAverage() => Assert.Equal(760m / 9m, Calculation.Summarize([C(5, 80), C(4, 90)]).Average);

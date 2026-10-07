@@ -47,7 +47,8 @@ public static class Calculation
     public static decimal? Final(Course c) => !c.UsesComponents ? c.Grade : c.Components.Count == 0 || c.Components.Any(x => x.Grade is null) ? null : decimal.Round(c.Components.Sum(x => x.Weight * x.Grade!.Value / 100m), 0, MidpointRounding.AwayFromZero);
     public static Summary Summarize(IEnumerable<Course> source)
     {
-        var all = source.ToList(); var graded = all.Where(c => Final(c) is not null).ToList(); var credits = graded.Sum(c => c.Credits);
+        var all = source.ToList(); var graded = all.Where(c => Final(c) is not null)
+            .GroupBy(c => c.Name, StringComparer.Ordinal).Select(g => g.Last()).ToList(); var credits = graded.Sum(c => c.Credits);
         var bins = new int[5]; foreach (var c in graded) { var g = Final(c)!.Value; bins[g < 60 ? 0 : g < 70 ? 1 : g < 80 ? 2 : g < 90 ? 3 : 4]++; }
         return new(credits == 0 ? null : graded.Sum(c => Final(c)!.Value * c.Credits) / credits, credits, all.Count, bins);
     }

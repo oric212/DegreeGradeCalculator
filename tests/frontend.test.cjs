@@ -67,3 +67,12 @@ test("distribution boundaries including bonus grades", () => {
     "1,2,2,2,3",
   );
 });
+
+test("exact-name repeats count only the latest graded attempt", () => {
+  const rows = [{...course(4, 90), name:"Math"}, {...course(3, 60), name:"Math"}, {...course(5, null), name:"Math"}, {...course(2,80),name:"math"}];
+  const s = summary(rows);
+  assert.equal(avg(s.average), "68.00");
+  assert.equal(s.credits, 5);
+  assert.equal(s.count, 4);
+  assert.equal(s.bins.reduce((a,b)=>a+b,0),2);
+});
