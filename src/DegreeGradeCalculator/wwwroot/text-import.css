@@ -107,3 +107,9 @@ details summary {
 .format-guide > div { margin-top: 12px; padding: 12px 16px; background: #f1f6fc; border-radius: 10px; }
 .format-guide p { margin: 8px 0; }
 .format-guide pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .85rem; }
+.import-year-group { margin: 32px 0; }
+.import-year-heading { color: #173b70; margin: 0 0 18px; padding-bottom: 12px; border-bottom: 2px solid #d5e3f5; }
+.import-semester-group { margin: 0 0 28px; }
+.import-semester-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 4px 12px; }
+.import-semester-heading h3 { margin: 0; color: #34577f; }
+.import-semester-heading span { color: #71839b; font-size: .85rem; }

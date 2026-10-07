@@ -38,7 +38,7 @@ The database is `%LOCALAPPDATA%\DegreeGradeCalculator\grades.db`. Replacing the 
 
 ## Import grades from text
 
-Choose **Import grades** on the dashboard or degree page. Paste copied text and select **Parse text**, then review course names, credits, grades, years, and semesters in editable cards. Choose a target degree and default year/semester; explicit row destinations take priority. Exclude unwanted rows, fix highlighted fields, and confirm **Import courses** to save. Parsing and preview never write to the database.
+Choose **Import grades** on the dashboard or degree page. Paste copied text and select **Parse text**, then review course names, credits, grades, years, and semesters in editable cards grouped by destination year and semester. Changing a destination moves the card into its matching group. Choose a target degree and default year/semester; explicit row destinations take priority. Exclude unwanted rows, fix highlighted fields, and confirm **Import courses** to save. Parsing and preview never write to the database.
 
 Supported formats include pipes (`Creative Coding | 3 | 81`), CSV including quoted names, spreadsheet tabs, semicolons, spaced columns, `Creative Coding 3 credits 81`, and `Creative Coding - 3 - 81`. English/Hebrew headers and year/semester names are recognized. Decimal credits and blank grades are supported. Decimal commas work in non-comma-separated cells or quoted CSV cells.
 
@@ -90,5 +90,6 @@ Fresh captures from the current GradePilot release. All course names and grades 
 ![Confirmation](screenshots/10-import-confirmation.png)
 ![Hebrew review with summer displayed as קיץ](screenshots/11-hebrew-review.png)
 ![Binary Passed import and correctly detected destinations](screenshots/12-binary-grade-review.png)
+![Import review grouped by year and semester](screenshots/13-grouped-import.png)
 
 </details>

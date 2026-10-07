@@ -199,7 +199,7 @@ function semesterOptions(year, value, allowDefault) {
 function renderTextImport() {
   const draft = importDraft;
   $("#app").innerHTML =
-    `<div class="heading"><div>${button("leaveTextImport", t("back"))}<h1>${t("textImport")}</h1><p>${t("pasteHelp")}</p></div></div><section class="card"><div class="paste-heading"><h2>${t("pasteTitle")}</h2></div><details class="format-guide"><summary>${t("supportedFormats")}</summary><div><p>${t("formatsTables")}</p><pre dir="ltr">Creative Coding | 3 | 81</pre><p>${t("formatsLists")}</p><pre dir="ltr">Creative Coding 3 credits 81</pre><p>${t("formatsTranscripts")}</p><pre dir="auto">שנת לימודים 2030&#10;א 410101 יצירה דיגיטלית שיעור 3.0 3.0 81</pre><pre dir="ltr">ACADEMIC YEAR 2030&#10;Fall 410101 Creative Coding 3.0 81</pre><p>${t("formatsYears")}</p></div></details>${label(t("pasteLabel"), `<textarea id="pasteText" maxlength="50000" rows="7" dir="auto">${esc(draft.text)}</textarea>`)}<div class="actions">${button("parseText", t("parseText"), 'class="primary"')}${button("clearText", t("clearText"))}</div><p id="parseError" role="alert"></p></section>${draft.result ? `<section class="card"><h2>${t("reviewTitle")}</h2><p>${t("reviewHelp")}</p><div class="import-defaults">${label(t("targetDegree"), `<select id="importDegree">${data.degrees.map((d) => `<option value="${d.id}" ${d.id === draft.degreeId ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>`)}${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(draft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(draft.defaultYear, draft.defaultSemester, false)}</select>`)}</div>${calendarMappingPanel()}${draft.result.warnings.filter(w => w.code !== "calendar-years-mapped").map((w) => `<p class="import-note">${esc(t(w.code))}</p>`).join("")}${draft.result.mappingRecommended && draft.result.columnCount > 0 ? `<details class="mapping"><summary>${t("advancedMapping")}</summary><p>${t("mappingHelp")}</p><div class="import-defaults">${draft.result.columnMapping.map((m, i) => label(t("column") + " " + (i + 1), `<select data-map="${i}"><option value="">${t("ignoreColumn")}</option>${["name", "credits", "grade", "year", "semester"].map((field) => `<option value="${field}" ${m === field ? "selected" : ""}>${t(field === "credits" ? "creditPoints" : field)}</option>`).join("")}</select>`)).join("")}</div>${button("applyMapping", t("applyMapping"))}</details>` : ""}</section><form id="reviewForm"><div id="reviewRows">${draft.rows.map(reviewCard).join("")}</div></form>${draft.result.unparsedLines.length ? `<section class="card"><h3>${t("unparsedTitle")}</h3><p>${t("unparsedHelp")}</p>${draft.result.unparsedLines.map((l, i) => `<div class="unparsed-line"><pre>${esc(l.text)}</pre><small>${esc(t(l.reason))}</small>${button("recoverLine", t("addReviewRow"), `data-line="${i}"`)}</div>`).join("")}</section>` : ""}<section class="card"><h3>${t("normalizedTitle")}</h3><p id="previewError" role="status"></p><div id="duplicateWarnings"></div>${label(t("normalizedTitle"), `<textarea id="normalizedText" readonly rows="4" dir="auto"></textarea>`)}<div class="actions">${button("copyNormalized", t("copyNormalized"))}${button("reviewImport", t("importCourses"), 'class="primary"')}</div><p id="importCount" aria-live="polite"></p></section>` : ""}`;
+    `<div class="heading"><div>${button("leaveTextImport", t("back"))}<h1>${t("textImport")}</h1><p>${t("pasteHelp")}</p></div></div><section class="card"><div class="paste-heading"><h2>${t("pasteTitle")}</h2></div><details class="format-guide"><summary>${t("supportedFormats")}</summary><div><p>${t("formatsTables")}</p><pre dir="ltr">Creative Coding | 3 | 81</pre><p>${t("formatsLists")}</p><pre dir="ltr">Creative Coding 3 credits 81</pre><p>${t("formatsTranscripts")}</p><pre dir="auto">שנת לימודים 2030&#10;א 410101 יצירה דיגיטלית שיעור 3.0 3.0 81</pre><pre dir="ltr">ACADEMIC YEAR 2030&#10;Fall 410101 Creative Coding 3.0 81</pre><p>${t("formatsYears")}</p></div></details>${label(t("pasteLabel"), `<textarea id="pasteText" maxlength="50000" rows="7" dir="auto">${esc(draft.text)}</textarea>`)}<div class="actions">${button("parseText", t("parseText"), 'class="primary"')}${button("clearText", t("clearText"))}</div><p id="parseError" role="alert"></p></section>${draft.result ? `<section class="card"><h2>${t("reviewTitle")}</h2><p>${t("reviewHelp")}</p><div class="import-defaults">${label(t("targetDegree"), `<select id="importDegree">${data.degrees.map((d) => `<option value="${d.id}" ${d.id === draft.degreeId ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>`)}${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(draft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(draft.defaultYear, draft.defaultSemester, false)}</select>`)}</div>${calendarMappingPanel()}${draft.result.warnings.filter(w => w.code !== "calendar-years-mapped").map((w) => `<p class="import-note">${esc(t(w.code))}</p>`).join("")}${draft.result.mappingRecommended && draft.result.columnCount > 0 ? `<details class="mapping"><summary>${t("advancedMapping")}</summary><p>${t("mappingHelp")}</p><div class="import-defaults">${draft.result.columnMapping.map((m, i) => label(t("column") + " " + (i + 1), `<select data-map="${i}"><option value="">${t("ignoreColumn")}</option>${["name", "credits", "grade", "year", "semester"].map((field) => `<option value="${field}" ${m === field ? "selected" : ""}>${t(field === "credits" ? "creditPoints" : field)}</option>`).join("")}</select>`)).join("")}</div>${button("applyMapping", t("applyMapping"))}</details>` : ""}</section><form id="reviewForm"><div id="reviewRows">${groupedReviewCards()}</div></form>${draft.result.unparsedLines.length ? `<section class="card"><h3>${t("unparsedTitle")}</h3><p>${t("unparsedHelp")}</p>${draft.result.unparsedLines.map((l, i) => `<div class="unparsed-line"><pre>${esc(l.text)}</pre><small>${esc(t(l.reason))}</small>${button("recoverLine", t("addReviewRow"), `data-line="${i}"`)}</div>`).join("")}</section>` : ""}<section class="card"><h3>${t("normalizedTitle")}</h3><p id="previewError" role="status"></p><div id="duplicateWarnings"></div>${label(t("normalizedTitle"), `<textarea id="normalizedText" readonly rows="4" dir="auto"></textarea>`)}<div class="actions">${button("copyNormalized", t("copyNormalized"))}${button("reviewImport", t("importCourses"), 'class="primary"')}</div><p id="importCount" aria-live="polite"></p></section>` : ""}`;
   if (draft.result) {
     validateReview();
     refreshImportPreview();
@@ -213,6 +213,26 @@ function calendarMappingPanel() {
     const value = rows.every(r => r.year === rows[0].year) ? rows[0].year : null;
     return label(calendar, `<select data-calendar-year="${calendar}">${value === null ? `<option value="" selected>—</option>` : ""}${yearOptions(value, false)}</select>`);
   }).join("")}</div></details>`;
+}
+function groupedReviewCards() {
+  const years = new Map();
+  importDraft.rows.forEach((row, index) => {
+    const year = row.year || importDraft.defaultYear;
+    const semester = row.semester || importDraft.defaultSemester;
+    if (!years.has(year)) years.set(year, new Map());
+    const semesters = years.get(year);
+    if (!semesters.has(semester)) semesters.set(semester, []);
+    semesters.get(semester).push({ row, index });
+  });
+  const order = name => {
+    const standard = ["A", "B", "Summer"].indexOf(name);
+    return standard < 0 ? 3 : standard;
+  };
+  return [...years].sort((a, b) => a[0] - b[0]).map(([year, semesters]) =>
+    `<section class="import-year-group"><h2 class="import-year-heading">${esc(yearName(year - 1))}</h2>${[...semesters].sort((a,b) => order(a[0]) - order(b[0])).map(([semester, rows]) =>
+      `<section class="import-semester-group"><div class="import-semester-heading"><h3>${esc(semName({ name: semester }))}</h3><span>${rows.length} ${t("courses")}</span></div>${rows.map(({ row, index }) => reviewCard(row, index)).join("")}</section>`
+    ).join("")}</section>`
+  ).join("");
 }
 function reviewCard(row, i) {
   return `<article class="card import-row ${row.warnings.length ? "uncertain" : ""}" data-row="${i}"><div class="import-row-head"><h3 data-row-title>${esc(row.name || t("courses"))}</h3><label class="include-row"><input type="checkbox" data-field="included" ${row.included ? "checked" : ""}>${t("includeRow")}</label></div><div class="import-fields">${label(t("name"), `<input data-field="name" value="${esc(row.name)}" required maxlength="200">`)}${label(t("creditPoints"), `<input data-field="credits" type="number" min="0.01" max="1000" step="any" required value="${esc(row.credits ?? "")}">`)}${row.passed != null ? label(t("binary"), `<select data-field="passed"><option value="true" ${row.passed ? "selected" : ""}>${t("passed")}</option><option value="false" ${!row.passed ? "selected" : ""}>${t("failed")}</option><option value="numeric">${t("direct")}</option></select>`) : label(t("grade"), `<input data-field="grade" type="number" min="0" max="100" step="any" value="${esc(row.grade ?? "")}">`)}${label(t("year"), `<select data-field="year">${yearOptions(row.year, true)}</select>`)}${label(t("semester"), `<select data-field="semester">${semesterOptions(row.year, row.semester, true)}</select>`)}</div><div class="row-validation" aria-live="polite"></div>${row.invalidGradeUnresolved ? button("acceptBlankGrade", t("acceptBlankGrade"), `data-row-index="${i}"`) : ""}${row.warnings.map((w) => `<p class="import-note" data-warning="${w}">${esc(t(w))}${["invalid-credits", "invalid-grade", "unknown-year", "unknown-semester"].includes(w) ? ` <span dir="auto">(${esc(row.rawValues?.[{ "invalid-credits": "credits", "invalid-grade": "grade", "unknown-year": "year", "unknown-semester": "semester" }[w]] || "")})</span>` : ""}</p>`).join("")}<details><summary>${t("sourceLine")}</summary><pre>${esc(row.originalLine)}</pre></details></article>`;
@@ -359,6 +379,10 @@ $("#app").addEventListener("input", (event) => {
       );
     card.querySelector("[data-row-title]").textContent =
       row.name || t("courses");
+    if (field === "year" || field === "semester") {
+      renderTextImport();
+      return;
+    }
     validateReview();
     refreshImportPreview();
   }
@@ -387,7 +411,7 @@ $("#app").addEventListener("change", (event) => {
     renderTextImport();
   } else if (el.id === "defaultSemester") {
     importDraft.defaultSemester = el.value;
-    refreshImportPreview();
+    renderTextImport();
   } else if (el.id === "duplicatePolicy") {
     importDraft.duplicatePolicy = el.value;
     refreshImportPreview();

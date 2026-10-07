@@ -19,3 +19,5 @@ Calendar-year mapping controls verified in the browser: 2024 → Year 2 and 2025
 All eleven screenshots were recaptured using an isolated fictional Digital Arts demo. Example transcript course names and grades were replaced with invented data, and the import textarea has no placeholder.
 
 Binary-grade verification: Passed adds credits without changing numeric averages; backup preserves binary status. Browser import created missing Summer only after confirmation and preserved editable Pass/Fail grading. Preview and invalid imports create no structure.
+
+Grouped import review verified in Hebrew: moving a course from Year 1 / A to Year 2 / B updates the group headings, course counts, editable fields, and normalized preview. Binary Passed rows remain editable in their destination group.
