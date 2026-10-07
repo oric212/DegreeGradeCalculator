@@ -14,6 +14,50 @@
 [hidden] {
   display: none !important;
 }
+.course-menu {
+  position: relative;
+}
+.course-menu summary {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  color: #71839b;
+  list-style: none;
+  cursor: pointer;
+}
+.course-menu summary::-webkit-details-marker {
+  display: none;
+}
+.course-menu summary:hover,
+.course-menu[open] summary {
+  background: #edf4ff;
+  color: #173b70;
+}
+.course-menu summary:focus-visible {
+  outline: 3px solid #75a6f0;
+  outline-offset: 3px;
+}
+.course-menu-actions {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 40px;
+  z-index: 2;
+  width: 145px;
+  padding: 6px;
+  border: 1px solid #dfe8f5;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 24px #173b7020;
+  display: grid;
+  gap: 2px;
+}
+.course-menu-actions button {
+  border: 0;
+  text-align: start;
+  padding: 9px 12px;
+}
 body {
   margin: 0;
 }
@@ -403,26 +447,106 @@ footer {
 .quick input {
   direction: ltr;
 }
-#app { touch-action: pan-y; }
-.grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
-@media (max-width: 650px) { .semester-head { align-items: flex-start; flex-direction: column; } }
-/* Keep the brand on the right and toolbar actions in a stable order. */
-header { direction: rtl; }
-header .brand, header nav { direction: ltr; }
-header nav { display: grid; grid-template-columns: 44px 125px 125px 105px; }
-header nav button { font-size: 14px; padding: 9px 10px; white-space: nowrap; min-height: 44px; }
-#language { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; }
-#language { border-color: transparent; background: transparent; color: #58739a; }
-#language:hover, #language[aria-expanded="true"] { background: #edf4ff; color: #173b70; }
-#languageDialog { position: fixed; inset: auto; margin: 0; width: min(220px, calc(100vw - 24px)); padding: 8px; border: 1px solid #dfe8f5; border-radius: 14px; background: white; color: #172d50; box-shadow: 0 8px 28px #173b7020; }
-#languageDialog h2 { font-size: 12px; font-weight: 600; color: #71839b; padding: 8px 12px; margin: 0 0 4px; }
-.language-options { display: grid; gap: 2px; }
-.language-options button { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 0; border-radius: 8px; text-align: start; background: transparent; }
-.language-options button:hover { background: #f1f6fc; }
-.language-options button[aria-pressed="true"] { color: #245dc1; font-weight: 600; background: #edf4ff; }
-.language-options button[aria-pressed="true"]::after { content: '✓'; font-size: 14px; }
+#app {
+  touch-action: pan-y;
+}
+.grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
 @media (max-width: 650px) {
-  header { align-items: stretch; }
-  header .brand { align-self: flex-start; }
-  header nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .semester-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+/* Keep the brand on the right and toolbar actions in a stable order. */
+header {
+  direction: rtl;
+}
+header .brand,
+header nav {
+  direction: ltr;
+}
+header nav {
+  display: grid;
+  grid-template-columns: 44px 125px 125px 105px;
+}
+header nav button {
+  font-size: 14px;
+  padding: 9px 10px;
+  white-space: nowrap;
+  min-height: 44px;
+}
+#language {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+#language {
+  border-color: transparent;
+  background: transparent;
+  color: #58739a;
+}
+#language:hover,
+#language[aria-expanded="true"] {
+  background: #edf4ff;
+  color: #173b70;
+}
+#languageDialog {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(220px, calc(100vw - 24px));
+  padding: 8px;
+  border: 1px solid #dfe8f5;
+  border-radius: 14px;
+  background: white;
+  color: #172d50;
+  box-shadow: 0 8px 28px #173b7020;
+}
+#languageDialog h2 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #71839b;
+  padding: 8px 12px;
+  margin: 0 0 4px;
+}
+.language-options {
+  display: grid;
+  gap: 2px;
+}
+.language-options button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  text-align: start;
+  background: transparent;
+}
+.language-options button:hover {
+  background: #f1f6fc;
+}
+.language-options button[aria-pressed="true"] {
+  color: #245dc1;
+  font-weight: 600;
+  background: #edf4ff;
+}
+.language-options button[aria-pressed="true"]::after {
+  content: "✓";
+  font-size: 14px;
+}
+@media (max-width: 650px) {
+  header {
+    align-items: stretch;
+  }
+  header .brand {
+    align-self: flex-start;
+  }
+  header nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

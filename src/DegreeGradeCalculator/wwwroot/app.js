@@ -29,6 +29,7 @@ const words = {
     creditPoints: "Credit points",
     credits: "Graded credits",
     courses: "Courses",
+    courseOptions: "Course options",
     required: "Required credits",
     edit: "Edit",
     delete: "Delete",
@@ -90,6 +91,7 @@ const words = {
     creditPoints: "נק״ז",
     credits: "נק״ז עם ציון",
     courses: "קורסים",
+    courseOptions: "אפשרויות קורס",
     required: "נק״ז נדרשות",
     edit: "עריכה",
     delete: "מחיקה",
@@ -273,8 +275,12 @@ function render() {
     (k) => ($("#" + k).textContent = t(k)),
   );
   let root = $("#app");
+  if (typeof importDraft !== "undefined" && importDraft) {
+    renderTextImport();
+    return;
+  }
   if (!selected) {
-    root.innerHTML = `<div class="heading"><div><div class="section-label">GradePilot</div><h1>${t("home")}</h1><p>${t("intro")}</p></div>${button("newDegree", t("addDegree"), 'class="primary"')}</div>${
+    root.innerHTML = `<div class="heading"><div><div class="section-label">GradePilot</div><h1>${t("home")}</h1><p>${t("intro")}</p></div><div class="actions">${button("textImport", t("textImport"), data.degrees.length ? "" : "disabled")}${button("newDegree", t("addDegree"), 'class="primary"')}</div></div>${
       !data.degrees.length
         ? `<div class="card empty"><h2>${t("empty")}</h2><p>${t("emptyText")}</p>${button("newDegree", t("addDegree"), 'class="primary"')}</div>`
         : `<div class="grid">${data.degrees
@@ -293,16 +299,35 @@ function render() {
   let y = d.years[yearIndex],
     s = summary(courses(d)),
     ys = summary(y.semesters.flatMap((s) => s.courses));
-  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}</div></div>${simulation ? `<section class="simulation"><h2>${t("simulation")}</h2><div class="metrics">${metric(t("newAverage"), avg(s.average))}${metric(t("current"), avg(summary(courses(real)).average))}</div>${distribution(s)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("average"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"))}</div>` : ""}${y.semesters
+  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation"><h2>${t("simulation")}</h2><div class="metrics">${metric(t("newAverage"), avg(s.average))}${metric(t("current"), avg(summary(courses(real)).average))}</div>${distribution(s)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("average"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"))}</div>` : ""}${y.semesters
     .map((sem) => {
       let ss = summary(sem.courses);
-      return `<section class="semester"><div class="semester-head"><div><h2>${esc(semName(sem))}</h2><p>${ss.credits} ${t("credits")} · ${t("average")} ${avg(ss.average)}</p></div>${!simulation ? `<div class="actions">${button("addCourse", t("addCourse"), `data-sem="${sem.id}"`)}${button("editSemester", t("edit"), `data-sem="${sem.id}"`)}${button("deleteSemester", t("delete"), `data-sem="${sem.id}"`)}</div>` : ""}</div>${!sem.courses.length ? `<p class="muted">${t("none")}</p>` : sem.courses.map((c) => `<article class="course ${simulation ? "sim-course" : ""}"><div class="sim-fields"><h3>${esc(c.name)}</h3><small>${c.credits} ${t("creditPoints")}${c.usesComponents && final(c) === null ? " · " + t("incomplete") : ""}</small>${simulation ? (c.usesComponents ? c.components.map((p, i) => `<div class="sim-component"><small>${esc(p.name)} · ${p.weight}%</small>${simControls(c, p.grade, i)}</div>`).join("") : simControls(c, c.grade, -1)) : ""}</div><div class="course-end"><span class="course-grade">${final(c) ?? "—"}</span>${!simulation ? `${button("editCourse", t("edit"), `data-id="${c.id}"`)}${button("deleteCourse", t("delete"), `data-id="${c.id}"`)}` : ""}</div></article>`).join("")}</section>`;
+      return `<section class="semester"><div class="semester-head"><div><h2>${esc(semName(sem))}</h2><p>${ss.credits} ${t("credits")} · ${t("average")} ${avg(ss.average)}</p></div>${!simulation ? `<div class="actions">${button("addCourse", t("addCourse"), `data-sem="${sem.id}"`)}${button("editSemester", t("edit"), `data-sem="${sem.id}"`)}${button("deleteSemester", t("delete"), `data-sem="${sem.id}"`)}</div>` : ""}</div>${!sem.courses.length ? `<p class="muted">${t("none")}</p>` : sem.courses.map((c) => `<article class="course ${simulation ? "sim-course" : ""}"><div class="sim-fields"><h3>${esc(c.name)}</h3><small>${c.credits} ${t("creditPoints")}${c.usesComponents && final(c) === null ? " · " + t("incomplete") : ""}</small>${simulation ? (c.usesComponents ? c.components.map((p, i) => `<div class="sim-component"><small>${esc(p.name)} · ${p.weight}%</small>${simControls(c, p.grade, i)}</div>`).join("") : simControls(c, c.grade, -1)) : ""}</div><div class="course-end"><span class="course-grade">${final(c) ?? "—"}</span>${!simulation ? courseOptions(c) : ""}</div></article>`).join("")}</section>`;
     })
     .join("")}`;
 }
 function simControls(c, g, i) {
   return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" min="0" max="100" step="0.01" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `data-delta="${n}" ${g === null ? "disabled" : ""}`)).join("")}${button("reset", t("reset"))}</div>`;
 }
+function courseOptions(c) {
+  return `<details class="course-menu"><summary aria-label="${esc(t("courseOptions") + ": " + c.name)}" title="${esc(t("courseOptions"))}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary><div class="course-menu-actions">${button("editCourse", t("edit"), `data-id="${c.id}"`)}${button("deleteCourse", t("delete"), `class="danger" data-id="${c.id}"`)}</div></details>`;
+}
+document.addEventListener("click", (event) => {
+  document.querySelectorAll(".course-menu[open]").forEach((menu) => {
+    if (
+      !menu.contains(event.target) ||
+      event.target.closest(".course-menu-actions button")
+    )
+      menu.open = false;
+  });
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape")
+    document.querySelectorAll(".course-menu[open]").forEach((menu) => {
+      menu.open = false;
+      menu.querySelector("summary").focus();
+    });
+});
 function label(text, input) {
   return `<label>${esc(text)}${input}</label>`;
 }
@@ -538,6 +563,9 @@ $("#app").addEventListener("click", async (e) => {
     y = d?.years[yearIndex];
   try {
     switch (a) {
+      case "textImport":
+        openTextImport();
+        break;
       case "newDegree":
         degreeForm();
         break;
@@ -667,23 +695,38 @@ $("#app").addEventListener("click", async (e) => {
   }
 });
 $("#language").onclick = () => {
-  document.querySelectorAll("[data-language]").forEach(button =>
-    button.setAttribute("aria-pressed", String(button.dataset.language === data.language)));
-  const panel = $("#languageDialog"), anchor = $("#language").getBoundingClientRect();
-  panel.style.left = Math.max(12, Math.min(anchor.left, window.innerWidth - 232)) + "px";
+  document
+    .querySelectorAll("[data-language]")
+    .forEach((button) =>
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.language === data.language),
+      ),
+    );
+  const panel = $("#languageDialog"),
+    anchor = $("#language").getBoundingClientRect();
+  panel.style.left =
+    Math.max(12, Math.min(anchor.left, window.innerWidth - 232)) + "px";
   panel.style.top = anchor.bottom + 8 + "px";
   panel.togglePopover();
 };
-$("#languageDialog").addEventListener("toggle", event => {
-  $("#language").setAttribute("aria-expanded", String(event.newState === "open"));
+$("#languageDialog").addEventListener("toggle", (event) => {
+  $("#language").setAttribute(
+    "aria-expanded",
+    String(event.newState === "open"),
+  );
 });
-document.querySelectorAll("[data-language]").forEach(button => {
+document.querySelectorAll("[data-language]").forEach((button) => {
   button.onclick = async () => {
     try {
-      await change(() => { data.language = button.dataset.language; });
+      await change(() => {
+        data.language = button.dataset.language;
+      });
       $("#languageDialog").hidePopover();
       $("#language").focus();
-    } catch (error) { toast(error.message); }
+    } catch (error) {
+      toast(error.message);
+    }
   };
 });
 $("#export").onclick = () => {
@@ -710,6 +753,7 @@ $("#file").onchange = async (e) => {
       data = await request("/api/data");
       selected = null;
       simulation = null;
+      if (typeof importDraft !== "undefined") importDraft = null;
       render();
       toast(t("saved"));
     }

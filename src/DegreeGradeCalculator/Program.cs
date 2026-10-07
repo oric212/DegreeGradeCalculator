@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using DegreeGradeCalculator.TextImport;
 
 var directory = Environment.GetEnvironmentVariable("GRADEPILOT_DATA") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DegreeGradeCalculator");
 Directory.CreateDirectory(directory);
@@ -14,6 +15,7 @@ using (instance)
     var root = Directory.Exists(Path.Combine(AppContext.BaseDirectory, "wwwroot")) ? AppContext.BaseDirectory : Directory.GetCurrentDirectory();
     var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = args, ContentRootPath = root, WebRootPath = Path.Combine(root, "wwwroot") });
     builder.Logging.ClearProviders();
+    builder.Services.AddSingleton<ITextCourseParser, TextCourseParser>();
     builder.WebHost.ConfigureKestrel(o => { o.Listen(IPAddress.Loopback, 0); o.Limits.MaxRequestBodySize = 5 * 1024 * 1024; });
     var app = builder.Build(); var store = new Store(directory);
     app.Use(async (context, next) =>
@@ -26,6 +28,18 @@ using (instance)
     });
     app.UseDefaultFiles(); app.UseStaticFiles();
     app.MapGet("/api/data", () => store.Read());
+    app.MapPost("/api/import/parse-text", (ParseTextRequest request, ITextCourseParser parser) => {
+        try { return Results.Ok(parser.Parse(request)); }
+        catch (ArgumentException e) { return Results.BadRequest(new { error = e.Message }); }
+    });
+    app.MapPost("/api/import/preview", (CourseImportRequest request) => {
+        try { return Results.Ok(CourseTextImport.Preview(store.Read(), request)); }
+        catch (ArgumentException e) { return Results.BadRequest(new { error = e.Message }); }
+    });
+    app.MapPost("/api/import/courses", (CourseImportRequest request) => {
+        try { return Results.Ok(store.Update(b => CourseTextImport.Apply(b, request))); }
+        catch (ArgumentException e) { return Results.BadRequest(new { error = e.Message }); }
+    });
     app.MapPut("/api/data", (Backup b) => { try { store.Write(b); return Results.Ok(); } catch (ArgumentException e) { return Results.BadRequest(new { error = e.Message }); } });
     app.MapPost("/api/validate", (Backup b) => { try { Validation.Check(b); return Results.Ok(); } catch (ArgumentException e) { return Results.BadRequest(new { error = e.Message }); } });
     app.MapPost("/api/shutdown", () => { app.Lifetime.StopApplication(); return Results.Ok(); });
