@@ -33,3 +33,5 @@ Screenshot gallery replaced again after framing review: nine English-only captur
 Import destination controls verified: target degree stands alone; fallback year and semester are collapsed when all destinations are detected and expanded for missing data. A multi-semester transcript keeps A, B, and Summer when fallback year changes. Calendar-year cards distinguish transcript year from degree year. Current English import screenshots recaptured.
 
 Import grade-mode toggle verified in the browser: Passed to numeric 86 to Failed to numeric restores 86, then back to binary restores Failed. Another numeric row toggled to binary and back retains 94; neighboring grade 73 and all destinations remain unchanged. Preview and final confirmation reflect only active grading values. English import screenshots refreshed.
+
+Average labels verified in English and Hebrew: degree summary uses Degree average / ממוצע תואר; year summary uses Year average / ממוצע שנתי; semester headers use Semester average / ממוצע סמסטר. Simulation uses the same scope labels. Affected English screenshots recaptured.

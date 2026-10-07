@@ -16,7 +16,7 @@ Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the
 - Horizontal year navigation with arrows or pointer/touch swipes; vertically stacked semesters. New years start with Semester A and B; add summer or custom semesters as needed.
 - Course dialogs with decimal credits, optional direct grades, or weighted components. Courses can move between semesters and years.
 - Course Edit/Delete actions are grouped in a compact three-dot menu.
-- Degree, year, and semester averages, graded-credit progress, reports, and five-category grade distribution.
+- Clearly labeled degree, year, and semester averages, graded-credit progress, reports, and five-category grade distribution.
 - Temporary simulation with exact grade entry, ±1/±5, reset, and component-level controls in the normal degree layout.
 - Hebrew RTL and English LTR, with a persisted language choice.
 - JSON export and validated restore; confirmation for restore and deletion.
