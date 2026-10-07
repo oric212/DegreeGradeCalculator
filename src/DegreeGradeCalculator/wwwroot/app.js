@@ -2,7 +2,8 @@
 let data,
   selected = null,
   yearIndex = 0,
-  simulation = null;
+  simulation = null,
+  degreeView = "courses";
 const $ = (s) => document.querySelector(s),
   esc = (s) =>
     String(s).replace(
@@ -48,6 +49,12 @@ const words = {
     addSemester: "Add semester",
     addCourse: "Add course",
     report: "Degree report",
+    insights: "Insights", returnToDegree: "Back to degree", insightsIntro: "A closer look at your saved results. Read only — your grades stay unchanged.",
+    gradeRanking: "Grades, highest to lowest", impactRanking: "Courses with the most GPA impact", cumulative: "Cumulative average over time",
+    insightsEmpty: "Add numeric grades to see rankings and your average over time.", countedAttempt: "Counts in GPA", previousAttempt: "Earlier attempt · excluded", numericCourses: "Counted numeric courses",
+    impactHelp: "Ranked by the absolute difference between your GPA and your GPA without this course. Positive values lift your average; negative values lower it. Only attempts currently counted in GPA appear.",
+    impactPoints: "GPA difference", gpaShare: "Share of GPA credits", onlyCourse: "Only counted course", timelineHelp: "Credit-weighted averages through each saved semester, in year and semester order. Yearly courses enter at year end. Repeated names use the latest completed attempt at each point; blank and pass/fail grades add no numeric grade.",
+    timelineDetails: "View graph values", readOnly: "Saved grades · read only",
     simulate: "Simulate grades",
     end: "End simulation",
     simulation: "Simulation mode · temporary changes",
@@ -112,6 +119,12 @@ const words = {
     addSemester: "הוספת סמסטר",
     addCourse: "הוספת קורס",
     report: "סיכום התואר",
+    insights: "תובנות", returnToDegree: "חזרה לתואר", insightsIntro: "מבט מעמיק על התוצאות השמורות שלך. לצפייה בלבד — הציונים נשארים ללא שינוי.",
+    gradeRanking: "ציונים מהגבוה לנמוך", impactRanking: "הקורסים המשפיעים ביותר על ממוצע התואר", cumulative: "ממוצע מצטבר לאורך זמן",
+    insightsEmpty: "הוסיפו ציונים מספריים כדי לראות דירוגים וממוצע לאורך זמן.", countedAttempt: "נכלל בממוצע", previousAttempt: "ניסיון קודם · לא נכלל", numericCourses: "קורסים מספריים לחישוב",
+    impactHelp: "הדירוג מבוסס על גודל ההפרש בין ממוצע התואר לבין הממוצע ללא הקורס. ערך חיובי מעלה את הממוצע וערך שלילי מוריד אותו. מוצגים רק הניסיונות הנכללים כעת בממוצע.",
+    impactPoints: "הפרש בממוצע", gpaShare: "חלק מהנק״ז לממוצע", onlyCourse: "הקורס היחיד לחישוב", timelineHelp: "ממוצע משוקלל לפי נק״ז עד כל סמסטר שמור, לפי סדר השנים והסמסטרים. קורסים שנתיים מתווספים בסוף השנה. בקורסים בעלי שם זהה נכלל הניסיון האחרון שהושלם בכל נקודה; ציונים ריקים וציוני עובר/נכשל אינם מוסיפים ציון מספרי.",
+    timelineDetails: "הצגת ערכי הגרף", readOnly: "ציונים שמורים · לצפייה בלבד",
     simulate: "סימולציית ציונים",
     end: "סיום סימולציה",
     simulation: "מצב סימולציה · שינויים זמניים",
@@ -247,6 +260,34 @@ function availableSemesters(year, current = null) {
   return [...new Set(["A", "B", "Summer", ...(current && !["A", "B", "Summer"].includes(current.name) ? [current.name] : [])])].filter(name => !taken.has(name.trim().toLowerCase()));
 }
 const simulationBumpEnabled = (grade, delta) => grade !== null || delta === 5;
+function degreeInsights(degree) {
+  const periods = degree.years.flatMap((year, yearIndex) => [
+    ...year.semesters.map(semester => ({yearIndex, semester, courses: semester.courses})),
+    ...((year.yearlyCourses || []).length ? [{yearIndex, semester: null, courses: year.yearlyCourses}] : []),
+  ]);
+  const entries = periods.flatMap(period => period.courses.map(course => ({course, period, grade: final(course)})));
+  const latest = new Map();
+  entries.filter(entry => entry.grade !== null || entry.course.passed === true).forEach(entry => latest.set(entry.course.name ?? entry.course, entry));
+  const counted = [...latest.values()].filter(entry => entry.grade !== null);
+  const current = summary(courses(degree));
+  const creditFraction = exactSum(counted.map(entry => fraction(entry.course.credits)));
+  const totalCredits = Number(creditFraction[0]) / Number(creditFraction[1]);
+  const average = current.average ? Number(current.average[0]) / Number(current.average[1]) : null;
+  const rankings = entries.filter(entry => entry.grade !== null).map(entry => ({...entry, counted: latest.get(entry.course.name ?? entry.course) === entry})).sort((a, b) => b.grade - a.grade || a.course.name.localeCompare(b.course.name));
+  const impact = counted.map(entry => {
+    const other = summary(counted.filter(candidate => candidate !== entry).map(candidate => candidate.course));
+    const difference = other.average ? average - Number(other.average[0]) / Number(other.average[1]) : null;
+    return {...entry, difference, share: totalCredits ? entry.course.credits / totalCredits * 100 : 0};
+  }).sort((a, b) => Math.abs(b.difference ?? 0) - Math.abs(a.difference ?? 0) || b.share - a.share);
+  const accumulated = [], timeline = [];
+  periods.forEach(period => {
+    accumulated.push(...period.courses);
+    if (!period.courses.some(course => final(course) !== null || course.passed === true)) return;
+    const point = summary(accumulated);
+    if (point.average) timeline.push({period, average: Number(point.average[0]) / Number(point.average[1]), formatted: avg(point.average)});
+  });
+  return {current, rankings, impact, timeline};
+}
 const simulationBumpValue = (grade, delta) => grade === null ? (delta === 5 ? 100 : null) : Math.max(0, Math.min(100, grade + delta));
 function simulationChanged(current, original) {
   if (!original) return true;
@@ -317,6 +358,7 @@ function showConflict() {
       simulation = null;
       if (typeof importDraft !== "undefined") { importDraft = null; previewSequence++; }
       if (!data.degrees.some(d => d.id === selected)) selected = null;
+      degreeView = "courses";
       panel.close(); render();
     } catch (e) { toast(e.message); }
   };
@@ -357,11 +399,12 @@ function render() {
   }
   let real = data.degrees.find((d) => d.id === selected),
     d = simulation || real;
+  if (degreeView === "insights") { renderInsights(real); return; }
   yearIndex = Math.min(yearIndex, d.years.length - 1);
   let y = d.years[yearIndex],
     s = summary(courses(d)),
     ys = summary(yearCourses(y));
-  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation">${simulationHeader(d, real)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("yearAverage"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"), availableSemesters(y).length ? "" : `disabled title="${esc(t("allSemestersExist"))}"`)}</div>` : ""}${[...y.semesters, ...((y.yearlyCourses?.length || !simulation) ? [{id: "yearly:" + y.id, name: "Yearly", courses: y.yearlyCourses || []}] : [])].map(sem => courseSection(sem, real)).join("")}`;
+  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("insights", t("insights")) : ""}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation">${simulationHeader(d, real)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("yearAverage"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"), availableSemesters(y).length ? "" : `disabled title="${esc(t("allSemestersExist"))}"`)}</div>` : ""}${[...y.semesters, ...((y.yearlyCourses?.length || !simulation) ? [{id: "yearly:" + y.id, name: "Yearly", courses: y.yearlyCourses || []}] : [])].map(sem => courseSection(sem, real)).join("")}`;
 }
 function courseSection(sem, real) {
   const yearly = sem.name === "Yearly" && sem.id.startsWith("yearly:"), ss = summary(sem.courses);
@@ -654,7 +697,7 @@ $(".brand").addEventListener("click", (event) => {
     importDraft = null;
     previewSequence++;
   }
-  selected = null;
+  selected = null; degreeView = "courses";
   simulation = null;
   yearIndex = 0;
   render();
@@ -676,13 +719,16 @@ $("#app").addEventListener("click", async (e) => {
       case "editDegree":
         degreeForm(b.dataset.id);
         break;
+      case "insights": degreeView = "insights"; render(); break;
+      case "degreeCourses": degreeView = "courses"; render(); break;
       case "open":
+        degreeView = "courses";
         selected = b.dataset.id;
         yearIndex = 0;
         render();
         break;
       case "back":
-        selected = null;
+        selected = null; degreeView = "courses";
         simulation = null;
         render();
         break;
@@ -875,7 +921,7 @@ $("#file").onchange = async (e) => {
     if (confirm(t("restoreConfirm"))) {
       await request("/api/data", "PUT", {...imported, revision: data.revision});
       data = await request("/api/data");
-      selected = null;
+      selected = null; degreeView = "courses";
       simulation = null;
       if (typeof importDraft !== "undefined") importDraft = null;
       render();
@@ -902,7 +948,7 @@ $("#app").addEventListener("pointerdown", (e) => {
   start = { x: e.clientX, y: e.clientY };
 });
 $("#app").addEventListener("pointerup", (e) => {
-  if (!start || !selected) return;
+  if (!start || !selected || degreeView === "insights") { start = null; return; }
   let dx = e.clientX - start.x,
     dy = e.clientY - start.y;
   start = null;

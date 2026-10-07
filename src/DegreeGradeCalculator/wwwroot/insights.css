@@ -1,0 +1,30 @@
+.insights-badge { color: #315c91; background: #e5eefc; border-radius: 24px; padding: 9px 16px; font-size: .9rem; }
+.insights-intro { color: #526d91; margin: 0 0 22px; }
+.insights-summary { border-inline-start: 4px solid #245dc1; }
+.insights-chart { margin-block: 24px; }
+.insights-chart h2, .insights-grid h2 { margin-top: 0; }
+.insights-chart p, .insight-explanation { color: #526d91; font-size: .95rem; }
+.insight-graph { display: block; width: 100%; height: auto; direction: ltr; margin-top: 24px; }
+.insight-graph text { font-size: 13px; fill: #526d91; }
+.graph-grid { stroke: #e3ebf6; stroke-width: 1; }
+.insights-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.insight-list { padding: 0; margin: 20px 0 0; list-style: none; }
+.insight-list li { display: flex; align-items: center; gap: 12px; padding: 18px 0; border-top: 1px solid #edf1f8; }
+.insight-rank { width: 30px; height: 30px; flex-shrink: 0; display: grid; place-items: center; background: #edf4ff; color: #315c91; border-radius: 9px; font-size: .85rem; }
+.insight-course { flex: 1; min-width: 0; }
+.insight-course h3 { margin: 0 0 4px; font-size: 1rem; overflow-wrap: anywhere; }
+.insight-course small { display: block; color: #526d91; }
+.insight-status { margin-top: 4px; font-size: .78rem; }
+.insight-value { text-align: end; flex-shrink: 0; }
+.insight-value strong { font-size: 1.5rem; color: #173b70; font-variant-numeric: tabular-nums; }
+.insight-value small { display: block; font-size: .75rem; color: #526d91; max-width: 105px; }
+.insight-weight { height: 5px; background: #edf3fc; margin-block: 9px 5px; border-radius: 4px; overflow: hidden; }
+.insight-weight span { display: block; height: 100%; background: #6097d6; border-radius: inherit; }
+.insight-values summary { color: #315c91; cursor: pointer; padding-block: 12px; }
+.insight-periods { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.insight-periods span { background: #f1f6fd; color: #526d91; padding: 5px 10px; border-radius: 8px; font-size: .8rem; }
+.insight-values ol { padding-inline-start: 24px; }
+.insight-values li { padding: 8px; border-bottom: 1px solid #edf1f8; }
+.insight-values li strong { margin-inline-start: 16px; font-variant-numeric: tabular-nums; }
+@media (max-width: 850px) { .insights-grid { grid-template-columns: 1fr; } }
+@media (max-width: 500px) { .insight-list li { gap: 8px; } .insight-rank { width: 24px; height: 24px; } .insight-value strong { font-size: 1.25rem; } }

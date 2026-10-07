@@ -8,7 +8,7 @@ I built GradePilot because I was frustrated with the solutions I tried. Ads and 
 
 ## Getting started
 
-Download the [Windows release](https://github.com/oric212/GradePilot/releases/tag/v1.0.0), extract it, and open **GradePilot.exe**. Keep the whole folder together. The compressed executable includes .NET and its dependencies, so there is nothing else to install.
+Download the [Windows release](https://github.com/oric212/GradePilot/releases/tag/v1.1), extract it, and open **GradePilot.exe**. Keep the whole folder together. The compressed executable includes .NET and its dependencies, so there is nothing else to install.
 
 Add a degree, then enter courses or use **Import grades**. The app opens in your browser, but your data stays on your computer. Closing the last app tab shuts down the local server; multiple tabs and page refresh are supported.
 
@@ -17,6 +17,7 @@ Add a degree, then enter courses or use **Import grades**. The app opens in your
 - Organize multiple degrees by year, semester, and yearly courses.
 - Enter direct grades, pass/fail results, or weighted components.
 - See separate degree, year, and semester averages, credit progress, and grade ranges.
+- Open **Insights / תובנות** beside the degree report to see grades from highest to lowest, the courses that raise or lower your GPA most, and a cumulative-average graph. It only reads saved results.
 - Simulate grades without changing saved results. Changed courses are highlighted until you restore their original values or press Reset. For a blank simulated grade, **+5 starts it at 100**.
 - Switch between Hebrew and English, and export or restore a backup.
 
@@ -35,6 +36,8 @@ Averages are weighted by course credits. Blank grades stay out of averages; Pass
 Component results are rounded to whole grades. Bonus weights above 100% are used as entered, with a warning. Repeated courses with exactly the same name use the latest graded attempt; a newer blank result does not replace it.
 
 Yearly courses count once in year and degree summaries, without affecting an individual semester’s average.
+
+In Insights, GPA impact means the difference between your average with a course and without it. The graph follows saved years and semesters, adds yearly courses at year end, and applies the repeated-course rule at each point.
 
 ## Your data
 

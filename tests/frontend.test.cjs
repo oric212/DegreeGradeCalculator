@@ -13,10 +13,10 @@ const context = vm.createContext({
 });
 vm.runInContext(
   source.slice(0, source.indexOf("function toast")) +
-    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue};",
+    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue,degreeInsights};",
   context,
 );
-const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue } = context.logic;
+const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue, degreeInsights } = context.logic;
 const course = (credits, grade) => ({
   credits,
   grade,
@@ -28,6 +28,45 @@ const component = (...parts) => ({
   grade: null,
   usesComponents: true,
   components: parts.map(([weight, grade]) => ({ weight, grade })),
+});
+test("insights rank saved grades and quantify signed GPA influence without mutations", () => {
+  const a = {...course(6, 60), name: "Heavy course"}, b = {...course(2, 100), name: "High grade"};
+  const degree = {years: [{semesters: [{name: "A", courses: [a]}, {name: "B", courses: [b]}], yearlyCourses: []}]};
+  const before = JSON.stringify(degree), result = degreeInsights(degree);
+  assert.equal(result.rankings[0].course.name, "High grade");
+  assert.equal(result.impact[0].course.name, "Heavy course");
+  assert.equal(result.impact[0].difference, -30);
+  assert.equal(result.impact[1].difference, 10);
+  assert.equal(result.impact[0].share, 75);
+  assert.equal(result.timeline.map(point => point.formatted).join(","), "60.00,70.00");
+  assert.equal(JSON.stringify(degree), before);
+});
+test("insight history uses latest completed attempts at each period, including yearly components", () => {
+  const named = (grade, extra = {}) => ({...course(4, grade), name: "Repeated", ...extra});
+  const annual = {...component([70, 80], [30, 90]), name: "Annual"};
+  const degree = {years: [
+    {semesters: [{name: "A", courses: [named(60), {...course(2, null), name: "Pass", passed: true}]}, {name: "B", courses: [named(90)]}], yearlyCourses: [annual]},
+    {semesters: [{name: "A", courses: [named(null)]}], yearlyCourses: []}
+  ]};
+  const result = degreeInsights(degree);
+  assert.equal(result.rankings.length, 3);
+  assert.equal(result.rankings.find(entry => entry.grade === 60).counted, false);
+  assert.equal(result.impact.length, 2);
+  assert.equal(result.timeline.length, 3);
+  assert.equal(result.timeline[0].formatted, "60.00");
+  assert.equal(result.timeline[1].formatted, "90.00");
+  assert.equal(result.timeline[2].formatted, avg(summary(courses(degree)).average));
+});
+test("insights handle empty, single-course, decimal credits, and pass/fail replacing a numeric attempt", () => {
+  const degree = cs => ({years: [{semesters: [{name: "A", courses: cs}]}]});
+  assert.equal(degreeInsights(degree([])).rankings.length, 0);
+  const single = degreeInsights(degree([{...course(.1, 82), name: "One"}]));
+  assert.equal(single.impact[0].difference, null);
+  assert.equal(single.impact[0].share, 100);
+  assert.equal(single.timeline[0].formatted, "82.00");
+  const replaced = degreeInsights(degree([{...course(4, 70), name: "Same"}, {...course(4, null), name: "Same", passed: true}]));
+  assert.equal(replaced.impact.length, 0);
+  assert.equal(replaced.rankings[0].counted, false);
 });
 test("browser weighted average and decimal credit arithmetic", () => {
   assert.equal(avg(summary([course(5, 80), course(4, 90)]).average), "84.44");
