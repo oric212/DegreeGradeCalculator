@@ -76,7 +76,7 @@ const words = {
     below: "Below 60",
     incomplete: "Incomplete components — no final grade",
     remove: "Remove",
-    semesterName: "Semester name",
+    semesterName: "Semester name", semesterExists: "This semester already exists in this year.", allSemestersExist: "This year already has Semester A, Semester B, and Summer.",
     language: "Language",
     reportTitle: "Academic overview",
   },
@@ -137,7 +137,7 @@ const words = {
     below: "מתחת ל־60",
     incomplete: "רכיבים לא שלמים — אין ציון סופי",
     remove: "הסרה",
-    semesterName: "שם הסמסטר",
+    semesterName: "שם הסמסטר", semesterExists: "הסמסטר הזה כבר קיים בשנה הזאת.", allSemestersExist: "בשנה הזאת כבר קיימים סמסטר א׳, סמסטר ב׳ וקיץ.",
     language: "שפה",
     reportTitle: "סקירה אקדמית",
   },
@@ -239,6 +239,10 @@ const semName = (s) =>
       : s.name === "Summer"
         ? t("summer")
         : s.name;
+function availableSemesters(year, current = null) {
+  const taken = new Set(year.semesters.filter(semester => semester.id !== current?.id).map(semester => semester.name.trim().toLowerCase()));
+  return [...new Set(["A", "B", "Summer", ...(current && !["A", "B", "Summer"].includes(current.name) ? [current.name] : [])])].filter(name => !taken.has(name.trim().toLowerCase()));
+}
 function toast(message) {
   $("#toast").textContent = message;
   $("#toast").style.display = "block";
@@ -307,7 +311,7 @@ function render() {
   let y = d.years[yearIndex],
     s = summary(courses(d)),
     ys = summary(y.semesters.flatMap((s) => s.courses));
-  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation"><h2>${t("simulation")}</h2><div class="metrics">${metric(t("newAverage"), avg(s.average))}${metric(t("current"), avg(summary(courses(real)).average))}</div>${distribution(s)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("yearAverage"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"))}</div>` : ""}${y.semesters
+  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation"><h2>${t("simulation")}</h2><div class="metrics">${metric(t("newAverage"), avg(s.average))}${metric(t("current"), avg(summary(courses(real)).average))}</div>${distribution(s)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("yearAverage"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"), availableSemesters(y).length ? "" : `disabled title="${esc(t("allSemestersExist"))}"`)}</div>` : ""}${y.semesters
     .map((sem) => {
       let ss = summary(sem.courses);
       return `<section class="semester"><div class="semester-head"><div><h2>${esc(semName(sem))}</h2><p>${ss.credits} ${t("credits")} · ${t("semesterAverage")} ${avg(ss.average)}</p></div>${!simulation ? `<div class="actions">${button("addCourse", t("addCourse"), `data-sem="${sem.id}"`)}${button("editSemester", t("edit"), `data-sem="${sem.id}"`)}${button("deleteSemester", t("delete"), `data-sem="${sem.id}"`)}</div>` : ""}</div>${!sem.courses.length ? `<p class="muted">${t("none")}</p>` : sem.courses.map((c) => `<article class="course ${simulation ? "sim-course" : ""}"><div class="sim-fields"><h3>${esc(c.name)}</h3><small>${c.credits} ${t("creditPoints")}${c.usesComponents && final(c) === null ? " · " + t("incomplete") : ""}</small>${simulation && c.passed == null ? (c.usesComponents ? c.components.map((p, i) => `<div class="sim-component"><small>${esc(p.name)} · ${p.weight}%</small>${simControls(c, p.grade, i)}</div>`).join("") : simControls(c, c.grade, -1)) : ""}</div><div class="course-end"><span class="course-grade">${c.passed != null ? t(c.passed ? "passed" : "failed") : final(c) ?? "—"}</span>${!simulation ? courseOptions(c) : ""}</div></article>`).join("")}</section>`;
@@ -654,15 +658,19 @@ $("#app").addEventListener("click", async (e) => {
       case "addSemester":
       case "editSemester": {
         let s = y.semesters.find((s) => s.id === b.dataset.sem);
+        const choices = availableSemesters(y, s);
+        if (!choices.length) { toast(t("allSemestersExist")); break; }
         dialog(
           t("semester"),
           label(
             t("semesterName"),
-            `<select name="name">${[...new Set(["A", "B", "Summer", ...(s && !["A", "B", "Summer"].includes(s.name) ? [s.name] : [])])].map(name => `<option value="${esc(name)}" ${name === (s?.name || "Summer") ? "selected" : ""}>${esc(semName({name}))}</option>`).join("")}</select>`,
+            `<select name="name">${choices.map(name => `<option value="${esc(name)}" ${name === (s?.name || (choices.includes("Summer") ? "Summer" : choices[0])) ? "selected" : ""}>${esc(semName({name}))}</option>`).join("")}</select>`,
           ),
           async (f) =>
             change(() => {
-              if (s) s.name = f.get("name").trim();
+              const name = f.get("name").trim();
+              if (!availableSemesters(y, s).includes(name)) throw new Error(t("semesterExists"));
+              if (s) s.name = name;
               else
                 y.semesters.push({
                   id: uid(),

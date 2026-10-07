@@ -13,10 +13,10 @@ const context = vm.createContext({
 });
 vm.runInContext(
   source.slice(0, source.indexOf("function toast")) +
-    "\nthis.logic={final,summary,avg,clone};",
+    "\nthis.logic={final,summary,avg,clone,availableSemesters};",
   context,
 );
-const { final, summary, avg, clone } = context.logic;
+const { final, summary, avg, clone, availableSemesters } = context.logic;
 const course = (credits, grade) => ({
   credits,
   grade,
@@ -83,4 +83,15 @@ test("binary passes count credits without entering numeric averages", () => {
   assert.equal(avg(s.average),"80.00"); assert.equal(s.credits,6);
   assert.equal(s.bins.reduce((a,b)=>a+b,0),1);
   assert.equal(final(rows[1]),null);
+});
+
+test("semester choices exclude existing semesters per year and retain the edited semester", () => {
+  const a = { id: "a", name: "A" }, b = { id: "b", name: "B" }, summer = { id: "summer", name: "Summer" };
+  const year = { semesters: [a, b] };
+  assert.deepEqual(Array.from(availableSemesters(year)), ["Summer"]);
+  assert.deepEqual(Array.from(availableSemesters(year, b)), ["B", "Summer"]);
+  assert.deepEqual(Array.from(availableSemesters({ semesters: [a, b, summer] })), []);
+  assert.deepEqual(Array.from(availableSemesters({ semesters: [] })), ["A", "B", "Summer"]);
+  assert.deepEqual(Array.from(availableSemesters({ semesters: [a] })), ["B", "Summer"]);
+  assert.deepEqual(Array.from(availableSemesters({ semesters: [{ id: "other", name: " b " }] })), ["A", "Summer"]);
 });

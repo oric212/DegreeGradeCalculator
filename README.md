@@ -13,7 +13,7 @@ Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the
 ## Features
 
 - Multiple degrees with required credits, nominal duration, and flexible academic years.
-- Horizontal year navigation with arrows or pointer/touch swipes; vertically stacked semesters. New years start with Semester A and B; add semesters using predefined A, B, and Summer choices, displayed in the current language. Existing custom semester names remain available when editing.
+- Horizontal year navigation with arrows or pointer/touch swipes; vertically stacked semesters. New years start with Semester A and B; add semesters using predefined A, B, and Summer choices, displayed in the current language. Only semesters missing from the selected year are offered when adding; editing keeps the current choice available. Add semester is disabled once A, B, and Summer all exist. Existing custom semester names remain available when editing.
 - Course dialogs with decimal credits, optional direct grades, or weighted components. Courses can move between semesters and years.
 - Course and degree Edit/Delete actions are grouped in compact three-dot menus. Deleting a degree requires a separate confirmation naming the degree; Cancel is focused first. Removing the last year also requires a named confirmation with its course count. Clicking the logo returns to the dashboard.
 - Clearly labeled degree, year, and semester averages, graded-credit progress, reports, and five-category grade distribution with distinct light-to-dark blue shades and matching legend markers.
@@ -66,37 +66,75 @@ Parser contract: `POST /api/import/parse-text` accepts `{ "text": "..." }` and a
 
 ## Screenshots
 
-Fresh English-only captures from the current Windows release. All names, transcript text, and grades are fictional demo data. Long screens are captured in full, and dialogs include every field and action.
+A walkthrough using a fictional **Digital Arts · Demo** degree. All course names, transcript text, and grades are invented. These fresh English-only captures focus on the relevant controls.
 
-![Dashboard and empty degree](screenshots/01-home.png)
+**Start here:** open a degree, import grades, or create a new degree from the dashboard.
+
+![Dashboard with fictional demo degrees](screenshots/01-home.jpg)
 
 <details>
-<summary>Degree, course menu, component editor, and simulation</summary>
+<summary>Explore averages, edit courses, and simulate grades</summary>
 
-![Complete degree page](screenshots/02-degree.png)
-![Course menu](screenshots/03-course-menu.png)
-![Component editor](screenshots/04-components.png)
-![Complete simulation page](screenshots/05-simulation.png)
+**Open a degree.** Degree and year averages have separate labels, with five distinct blue grade ranges.
+
+![Degree and year summaries](screenshots/02-degree.jpg)
+
+**Open a course’s three-dot menu** to edit or delete that course. Each semester shows its own average.
+
+![Semester and course options](screenshots/03-course-menu.jpg)
+
+**Edit weighted components.** Choose a grading method, enter component weights and grades, then save.
+
+![Component fields and Save and Cancel actions](screenshots/04-components.jpg)
+
+**Start simulation** to compare a temporary average with the saved average.
+
+![Simulation comparison](screenshots/05-simulation.jpg)
 
 </details>
 
 <details>
-<summary>Import: paste, grouped review, unsupported rows, and confirmation</summary>
+<summary>Import grades: paste → map years → review → confirm</summary>
 
-![Empty paste field](screenshots/06-import-paste.png)
-![Complete year mapping and grouped review](screenshots/07-import-review.png)
-![Unsupported rows expanded within the complete import screen](screenshots/08-unsupported-rows.png)
-![Confirmation showing changes to existing courses](screenshots/09-import-confirmation.png)
+**1. Paste your course text and select Parse text.** Supported formats stay in a collapsed guide.
+
+![Clean paste screen](screenshots/06-import-paste.jpg)
+
+**2. Choose the degree and map academic years.** Each course retains its own semester; mappings can be adjusted.
+
+![Target degree and adjustable academic year mapping](screenshots/07-import-destinations.jpg)
+
+**3. Review courses grouped by year and semester.** Edit an individual destination or toggle only that course between numeric and pass/fail grading.
+
+![Grouped review with a binary course](screenshots/08-course-review.jpg)
+
+**If some rows need attention,** open one consolidated section to view them or add an editable review card.
+
+![One expandable section for unsupported rows](screenshots/14-unsupported-rows.jpg)
+
+**4. Confirm updates.** Reimported changes show old and new values before existing courses are replaced.
+
+![Before and after import confirmation](screenshots/09-import-confirmation.jpg)
 
 </details>
 
 <details>
-<summary>Degree menu and deletion confirmation</summary>
+<summary>Manage degrees, years, and available semesters</summary>
 
-![Degree menu](screenshots/10-degree-menu.png)
-![Named deletion confirmation](screenshots/11-delete-confirmation.png)
+**Degree settings and deletion** live inside the three-dot menu.
+
+![Degree options](screenshots/10-degree-menu.jpg)
+
+**Deleting a degree requires confirmation** naming the affected degree.
+
+![Named degree deletion confirmation](screenshots/11-delete-confirmation.jpg)
+
+**Removing the last year also requires confirmation,** including its course count.
+
+![Year removal confirmation](screenshots/12-remove-year-confirmation.jpg)
+
+**Add only missing semesters.** This demo year already has A and B, so the dropdown offers only Summer. Choices are localized in Hebrew mode.
+
+![Only Summer is available in this year](screenshots/13-semester-choices.jpg)
 
 </details>
-
-![Last-year removal confirmation](screenshots/12-remove-year-confirmation.png)
-![Localized semester dropdown](screenshots/13-semester-choices.png)

@@ -4,7 +4,7 @@ Verified on Windows x64 with .NET SDK 10.0.401.
 
 - Solution build: zero warnings or errors.
 - 119 xUnit tests: original calculation/storage coverage plus deterministic parsing, supported delimiters and headers, Hebrew/English destinations, preserved invalid input, size limits, manual mapping, normalized output, bulk defaults/overrides, exclusion, duplicates, atomic import, and a live HTTP test proving parse/preview are read-only and import requires confirmation.
-- 7 browser-logic tests: exact decimal math, exclusions, component weighting, simulated propagation/isolation, distribution boundaries.
+- 8 browser-logic tests: exact decimal math, exclusions, component weighting, simulated propagation/isolation, distribution boundaries.
 - Self-contained Windows x64 publish includes the runtime, SQLite native library, and all browser assets.
 - Browser checks: degree creation, direct course editing, component course creation, warnings for excess weights, vertical semesters, simulation controls, immediate exact component entry, restoration after simulation, Hebrew RTL, English LTR, and a 390-pixel mobile layout.
 - Live release checks: automatic loopback-port selection, persisted real component grades after restart, backup validation/restoration, malformed backup rejection, static assets, and a windowless executable launch. Browser launch completed without recording an error.
@@ -41,3 +41,5 @@ Grade distribution uses five widely spaced blue shades, from pale blue below 60 
 Degree deletion is hidden in a three-dot menu and requires a named confirmation with Cancel focused first. Browser verification confirmed cancellation preserves the degree and logo navigation returns home from a degree and empty importer. New English menu and confirmation captures use fictional data.
 
 Last-year removal dialog verified: names Year 2, reports two courses, warns that the year and contents are removed, and focuses Cancel. Cancellation preserves the year. Semester Add/Edit uses predefined localized A/B/Summer options; English and Hebrew dropdowns verified. Existing custom names are preserved when editing.
+
+Semester availability verified in the browser: Year 1 with A/B offers only Summer; Year 2 with A/Summer offers only B. Adding its final missing semester disables Add semester. The eighth browser-logic test covers year-scoped availability, editing the current choice, removed choices, and case/whitespace normalization. All eight tests pass. The gallery now contains fourteen newly captured English-only JPEGs from an isolated fictional degree, with focused crops and step-by-step captions; all previous images were removed. Each image was visually inspected.
