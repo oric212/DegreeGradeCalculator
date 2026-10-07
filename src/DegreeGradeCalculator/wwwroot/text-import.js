@@ -262,6 +262,7 @@ function reviewCard(row, i) {
 }
 function importRequest(confirmed = false) {
   return {
+    revision: data.revision,
     degreeId: importDraft.degreeId,
     defaultYear: importDraft.defaultYear,
     defaultSemester: importDraft.defaultSemester,

@@ -573,3 +573,40 @@ header nav button {
 .degree-card-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
 .degree-card-head h2 { margin: 0; overflow-wrap: anywhere; }
 .degree-menu { flex-shrink: 0; }
+/* Numeric editing and arithmetic tokens remain LTR inside either page direction. */
+input[type="number"], [data-delta] {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+.simulation {
+  background: #edf5ff;
+  color: #172d50;
+  border: 1px solid #a9c7ef;
+  border-inline-start: 5px solid #286bb5;
+  box-shadow: 0 7px 24px #28486d08;
+}
+.simulation-badge, .changed-badge {
+  display: inline-block;
+  border-radius: 20px;
+  background: #dcecff;
+  color: #174c91;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 4px 10px;
+}
+.simulation-average { display: flex; flex-direction: column; margin-top: 12px; }
+.simulation-average strong { font-size: 44px; line-height: 1.2; color: #173b70; }
+.simulation-average span { color: #405f87; font-size: 14px; }
+.simulation .simulation-current { font-size: 14px; color: #657895; margin: 10px 0 4px; }
+.simulation .simulation-status { color: #657895; }
+.simulation .legend { color: #50637e; }
+.simulation-changed {
+  background: #eff6ff;
+  border-inline-start: 3px solid #286bb5;
+  border-radius: 12px;
+  padding-inline: 14px;
+  margin-top: 8px;
+}
+.changed-badge { margin-inline-start: 8px; font-size: 11px; }
+.semester-menu .course-menu-actions { width: 180px; }

@@ -44,7 +44,7 @@ public class ParserEndpointTests
             Assert.Equal(before, await http.GetStringAsync("/api/data"));
             var oversized = await http.PostAsJsonAsync("/api/import/parse-text", new ParseTextRequest(new string('x', 50_001)));
             Assert.Equal(HttpStatusCode.BadRequest, oversized.StatusCode);
-            var request = new CourseImportRequest(backup.Degrees[0].Id, 1, "A", [new ReviewedCourse { Name = "Math", Credits = 2.5m, Grade = 45 }]);
+            var request = new CourseImportRequest(backup.Degrees[0].Id, 1, "A", [new ReviewedCourse { Name = "Math", Credits = 2.5m, Grade = 45 }], Revision: backup.Revision);
             var preview = await http.PostAsJsonAsync("/api/import/preview", request); preview.EnsureSuccessStatusCode();
             Assert.Equal(before, await http.GetStringAsync("/api/data"));
             var unconfirmed = await http.PostAsJsonAsync("/api/import/courses", request);
@@ -53,10 +53,16 @@ public class ParserEndpointTests
             var imported = await http.PostAsJsonAsync("/api/import/courses", request with { Confirmed = true }); imported.EnsureSuccessStatusCode();
             var saved = JsonSerializer.Deserialize<Backup>(await http.GetStringAsync("/api/data"), Store.Json)!;
             Assert.Equal(45, Assert.Single(Calculation.Courses(saved.Degrees[0])).Grade);
+            var importResult = await imported.Content.ReadFromJsonAsync<ImportPreview>();
+            Assert.Equal(backup.Revision + 1, saved.Revision);
+            Assert.Equal(saved.Revision, importResult!.Revision);
+            var staleImport = await http.PostAsJsonAsync("/api/import/courses",request with { Confirmed = true });
+            Assert.Equal(HttpStatusCode.Conflict,staleImport.StatusCode);
+            Assert.Equal(saved.Revision,(await http.GetFromJsonAsync<Backup>("/api/data"))!.Revision);
             var identical = await http.PostAsJsonAsync("/api/import/preview", request);
             var same = await identical.Content.ReadFromJsonAsync<ImportPreview>();
             Assert.Equal(0, same!.Count); Assert.Equal(1, same.Unchanged);
-            var update = request with { Rows = [new ReviewedCourse { Name = "Math", Credits = 3, Grade = 81 }] };
+            var update = request with { Revision = saved.Revision, Rows = [new ReviewedCourse { Name = "Math", Credits = 3, Grade = 81 }] };
             var reviewed = await http.PostAsJsonAsync("/api/import/preview", update);
             var changes = await reviewed.Content.ReadFromJsonAsync<ImportPreview>();
             Assert.Equal(1, changes!.Updated); Assert.Equal(45, changes.Updates[0].OldGrade);

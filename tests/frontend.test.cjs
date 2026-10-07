@@ -13,10 +13,10 @@ const context = vm.createContext({
 });
 vm.runInContext(
   source.slice(0, source.indexOf("function toast")) +
-    "\nthis.logic={final,summary,avg,clone,availableSemesters};",
+    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses};",
   context,
 );
-const { final, summary, avg, clone, availableSemesters } = context.logic;
+const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses } = context.logic;
 const course = (credits, grade) => ({
   credits,
   grade,
@@ -94,4 +94,42 @@ test("semester choices exclude existing semesters per year and retain the edited
   assert.deepEqual(Array.from(availableSemesters({ semesters: [] })), ["A", "B", "Summer"]);
   assert.deepEqual(Array.from(availableSemesters({ semesters: [a] })), ["B", "Summer"]);
   assert.deepEqual(Array.from(availableSemesters({ semesters: [{ id: "other", name: " b " }] })), ["A", "Summer"]);
+});
+test("yearly courses enter year and degree summaries once, never semester summaries", () => {
+  const semester = {...course(2, 70), id:"s", name:"Semester course"};
+  const yearly = {...course(4, 100), id:"y", name:"Yearly course"};
+  const year = {semesters:[{courses:[semester]}], yearlyCourses:[yearly]};
+  const degree = {years:[year]};
+  assert.equal(avg(summary(yearCourses(year)).average), "90.00");
+  assert.equal(avg(summary(courses(degree)).average), "90.00");
+  assert.equal(summary(courses(degree)).credits, 6);
+  assert.equal(avg(summary(year.semesters[0].courses).average), "70.00");
+  const simulated = clone(degree);
+  simulated.years[0].yearlyCourses[0].grade = 85;
+  assert.equal(avg(summary(courses(simulated)).average), "80.00");
+  assert.equal(modifiedCourses(simulated, degree).length, 1);
+  assert.equal(year.yearlyCourses[0].grade, 100);
+});
+test("simulation highlight tracks current differences and manual reversion equals reset", () => {
+  const real = {...course(3, 80), id:"direct"};
+  const current = clone(real);
+  for (const [grade, changed] of [[85,true],[81,true],[80,false],[85,true],[80,false]]) {
+    current.grade = grade; assert.equal(simulationChanged(current, real), changed);
+  }
+  assert.deepEqual(current, clone(real));
+  const degree = {years:[{semesters:[{courses:[real]}]}]};
+  assert.equal(modifiedCourses(clone(degree), degree).length, 0);
+});
+test("component changes highlight parent even when final rounded grade is unchanged", () => {
+  const real = component([70,70],[30,90]), current = clone(real);
+  current.components[0].grade = 75;
+  assert.equal(simulationChanged(current,real), true);
+  current.components[1].grade = 91;
+  current.components[0].grade = 70;
+  assert.equal(simulationChanged(current,real), true);
+  current.components[1].grade = 90;
+  assert.equal(simulationChanged(current,real), false);
+  current.components[0].grade = 70.1;
+  assert.equal(final(current), final(real));
+  assert.equal(simulationChanged(current,real), true);
 });

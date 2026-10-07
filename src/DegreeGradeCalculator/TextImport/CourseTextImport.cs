@@ -16,11 +16,11 @@ public sealed class ReviewedCourse
     public bool Included { get; set; } = true;
 }
 public sealed record CourseImportRequest(Guid DegreeId, int DefaultYear, string DefaultSemester,
-    List<ReviewedCourse> Rows, string DuplicatePolicy = "update", bool Confirmed = false, string? ReviewToken = null);
+    List<ReviewedCourse> Rows, string DuplicatePolicy = "update", bool Confirmed = false, string? ReviewToken = null, long? Revision = null);
 public sealed record CourseUpdate(string Name, int Year, string Semester, decimal OldCredits, decimal NewCredits,
     decimal? OldGrade, decimal? NewGrade, bool? OldPassed, bool? NewPassed, bool ReplacesComponents, int RemovedDuplicates);
 public sealed record ImportPreview(int Count, int SkippedDuplicates, List<string> DuplicateNames, string NormalizedText,
-    int Added, int Updated, int Unchanged, List<CourseUpdate> Updates, List<string> RepeatedRows, string ReviewToken);
+    int Added, int Updated, int Unchanged, List<CourseUpdate> Updates, List<string> RepeatedRows, string ReviewToken, long Revision = 0);
 public static class CourseTextImport
 {
     public static ImportPreview Preview(Backup data, CourseImportRequest request) => Prepare(data, request).Preview;
