@@ -67,11 +67,11 @@ public static class Validation
         var ids = new HashSet<Guid>();
         void Id(Guid id) { if (id == Guid.Empty || !ids.Add(id)) throw new ArgumentException("Invalid or duplicate identifier."); }
         void Name(string n) { if (string.IsNullOrWhiteSpace(n) || n.Length > 200) throw new ArgumentException("Names must contain 1–200 characters."); }
-        void Grade(decimal? g) { if (g is < 0 or > 100) throw new ArgumentException("Input grades must be between 0 and 100."); }
+        void Grade(decimal? g) { if (g is < 0 or > 100 || (g.HasValue && g.Value != decimal.Truncate(g.Value))) throw new ArgumentException("Input grades must be whole numbers between 0 and 100."); }
         foreach (var d in b.Degrees)
         {
             if (d is null) throw new ArgumentException("Degree cannot be null.");
-            Id(d.Id); Name(d.Name); if (d.Duration is < 1 or > 100 || d.RequiredCredits is <= 0 or > 10000 || d.Years is null || d.Years.Count is < 1 or > 100) throw new ArgumentException("Invalid degree structure or credits.");
+            Id(d.Id); Name(d.Name); if (d.Duration is < 1 or > 100 || d.RequiredCredits is <= 0 or > 10000 || d.RequiredCredits != decimal.Truncate(d.RequiredCredits) || d.Years is null || d.Years.Count is < 1 or > 100) throw new ArgumentException("Degree required credits must be whole numbers; check degree structure and credit range.");
             foreach (var y in d.Years)
             {
                 if (y is null) throw new ArgumentException("Year cannot be null."); Id(y.Id); if (y.Semesters is null || y.Semesters.Count > 50) throw new ArgumentException("Invalid semesters.");

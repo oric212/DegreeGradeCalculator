@@ -13,10 +13,10 @@ const context = vm.createContext({
 });
 vm.runInContext(
   source.slice(0, source.indexOf("function toast")) +
-    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue,degreeInsights};",
+    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue,degreeInsights,formatCredits,formatGrade,formatRequiredCredits,validRequiredCredits,validGrade,requiredCreditAttributes,gradeAttributes};",
   context,
 );
-const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue, degreeInsights } = context.logic;
+const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue, degreeInsights, formatCredits, formatGrade, formatRequiredCredits, validRequiredCredits, validGrade, requiredCreditAttributes, gradeAttributes } = context.logic;
 const course = (credits, grade) => ({
   credits,
   grade,
@@ -193,4 +193,31 @@ test("only +5 initializes a blank simulation grade to 100 and reset restores bla
   const parts = component([100,null]);
   parts.components[0].grade = simulationBumpValue(parts.components[0].grade,5);
   assert.equal(final(parts),100);
+});
+
+test("semantic numeric formatting keeps credits precise, grades whole and averages at two decimals", () => {
+  assert.equal(validRequiredCredits(120), true);
+  assert.equal(validRequiredCredits(120.1), false);
+  assert.equal(formatRequiredCredits(120), "120");
+  assert.equal(formatCredits(2.5), "2.5");
+  assert.equal(formatCredits(3.00), "3");
+  assert.equal(formatCredits(3.25), "3.25");
+  assert.equal(formatCredits(summary([course(3,82), course(4,82), course(2,82)]).credits), "9");
+  assert.equal(formatCredits(summary([course(3,82), course(4,82), course(2.5,82)]).credits), "9.5");
+  assert.equal(formatCredits(summary([course(.1,82), course(.2,82)]).credits), "0.3");
+  assert.equal(formatGrade(82.00), "82");
+  assert.equal(validGrade(69.5), false);
+  assert.equal(validGrade(69), true);
+  assert.equal(validGrade(101), false);
+  assert.equal(validGrade(null), true);
+  assert.equal(formatGrade(final(component([60,82],[40,83]))), "82");
+  const degree = {years:[{semesters:[{name:"A",courses:[course(2.5,82)]}]}]};
+  for (const rows of [courses(degree), yearCourses(degree.years[0]), degree.years[0].semesters[0].courses, courses(clone(degree))]) {
+    assert.equal(avg(summary(rows).average), "82.00");
+  }
+  assert.match(requiredCreditAttributes, /step="1"/);
+  assert.match(requiredCreditAttributes, /min="1"/);
+  assert.match(gradeAttributes, /step="1"/);
+  assert.match(gradeAttributes, /dir="ltr"/);
+  assert.equal(degreeInsights(degree).timeline[0].formatted, "82.00");
 });

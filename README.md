@@ -8,7 +8,7 @@ I built GradePilot because I was frustrated with the solutions I tried. Ads and 
 
 ## Getting started
 
-Download the [Windows release](https://github.com/oric212/GradePilot/releases/tag/v1.1), extract it, and open **GradePilot.exe**. Keep the whole folder together. The compressed executable includes .NET and its dependencies, so there is nothing else to install.
+Download the [Windows release](https://github.com/oric212/GradePilot/releases/tag/v1.1.1), extract it, and open **GradePilot.exe**. Keep the whole folder together. The compressed executable includes .NET and its dependencies, so there is nothing else to install.
 
 Add a degree, then enter courses or use **Import grades**. The app opens in your browser, but your data stays on your computer. Closing the last app tab shuts down the local server; multiple tabs and page refresh are supported.
 
@@ -32,6 +32,8 @@ The importer supports spreadsheet data and Hebrew/English transcripts. Its suppo
 ## How averages work
 
 Averages are weighted by course credits. Blank grades stay out of averages; Passed counts toward credits without adding a numeric grade, and Failed adds no credits.
+
+Required degree credits and entered grades are whole numbers. Course credits may be fractional (such as 2.5), and averages display two decimal places.
 
 Component results are rounded to whole grades. Bonus weights above 100% are used as entered, with a warning. Repeated courses with exactly the same name use the latest graded attempt; a newer blank result does not replace it.
 

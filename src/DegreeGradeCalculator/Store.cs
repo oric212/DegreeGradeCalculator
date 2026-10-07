@@ -24,9 +24,24 @@ public sealed class Store
         existing.CommandText = "SELECT json FROM state WHERE id=1";
         var raw = existing.ExecuteScalar() as string;
         using var parsed = raw is null ? null : JsonDocument.Parse(raw);
-        if (parsed is null || !parsed.RootElement.TryGetProperty("revision", out var revision) || revision.GetInt64() < 1)
-            Save(db, tx, Read(db, tx)); // Initialize only empty or legacy revision metadata.
+        var data = Read(db, tx);
+        var migrated = NormalizeLegacyRequiredCredits(data);
+        if (migrated) data.Revision = checked(data.Revision + 1);
+        if (migrated || parsed is null || !parsed.RootElement.TryGetProperty("revision", out var revision) || revision.GetInt64() < 1)
+            Save(db, tx, data);
         tx.Commit();
+    }
+    // Repair only the legacy required-credit spinner bug; course credits and grades stay untouched.
+    public static bool NormalizeLegacyRequiredCredits(Backup data)
+    {
+        var changed = false;
+        foreach (var degree in data.Degrees)
+        {
+            if (degree.RequiredCredits <= 0 || degree.RequiredCredits > 10000 || degree.RequiredCredits == decimal.Truncate(degree.RequiredCredits)) continue;
+            degree.RequiredCredits = Math.Max(1, decimal.Round(degree.RequiredCredits, 0, MidpointRounding.AwayFromZero));
+            changed = true;
+        }
+        return changed;
     }
     private SqliteConnection Open() { var db = new SqliteConnection(connection); db.Open(); return db; }
     private static Backup Read(SqliteConnection db, SqliteTransaction? tx = null)

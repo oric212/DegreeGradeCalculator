@@ -48,7 +48,7 @@ const words = {
     removeYear: "Remove last year", removeYearTitle: "Remove last year?", removeYearHelp: "This permanently removes this year, its semesters, and all its courses. This cannot be undone.",
     addSemester: "Add semester",
     addCourse: "Add course",
-    report: "Degree report",
+    report: "Degree report", wholeRequiredCredits: "Required credits must be whole numbers from 1 to 10000.", wholeGrade: "Grades must be whole numbers from 0 to 100.",
     insights: "Insights", returnToDegree: "Back to degree", insightsIntro: "A closer look at your saved results. Read only — your grades stay unchanged.",
     gradeRanking: "Grades, highest to lowest", impactRanking: "Courses with the most GPA impact", cumulative: "Cumulative average over time",
     insightsEmpty: "Add numeric grades to see rankings and your average over time.", countedAttempt: "Counts in GPA", previousAttempt: "Earlier attempt · excluded", numericCourses: "Counted numeric courses",
@@ -118,7 +118,7 @@ const words = {
     removeYear: "הסרת השנה האחרונה", removeYearTitle: "להסיר את השנה האחרונה?", removeYearHelp: "השנה, הסמסטרים וכל הקורסים שלה יימחקו לצמיתות. לא ניתן לבטל את המחיקה.",
     addSemester: "הוספת סמסטר",
     addCourse: "הוספת קורס",
-    report: "סיכום התואר",
+    report: "סיכום התואר", wholeRequiredCredits: "נק״ז נדרשות חייבות להיות מספר שלם בין 1 ל־10000.", wholeGrade: "ציונים חייבים להיות מספרים שלמים בין 0 ל־100.",
     insights: "תובנות", returnToDegree: "חזרה לתואר", insightsIntro: "מבט מעמיק על התוצאות השמורות שלך. לצפייה בלבד — הציונים נשארים ללא שינוי.",
     gradeRanking: "ציונים מהגבוה לנמוך", impactRanking: "הקורסים המשפיעים ביותר על ממוצע התואר", cumulative: "ממוצע מצטבר לאורך זמן",
     insightsEmpty: "הוסיפו ציונים מספריים כדי לראות דירוגים וממוצע לאורך זמן.", countedAttempt: "נכלל בממוצע", previousAttempt: "ניסיון קודם · לא נכלל", numericCourses: "קורסים מספריים לחישוב",
@@ -230,6 +230,13 @@ const avg = (n) => {
     );
   },
   colors = ["#d1e2f8", "#9bbfe9", "#6097d6", "#286bb5", "#103d78"];
+const formatCredits = value => String(value),
+  formatGrade = value => value === null ? "—" : String(value),
+  formatRequiredCredits = value => String(value),
+  validRequiredCredits = value => Number.isInteger(value) && value >= 1 && value <= 10000,
+  validGrade = value => value === null || (Number.isInteger(value) && value >= 0 && value <= 100),
+  requiredCreditAttributes = 'type="number" dir="ltr" min="1" max="10000" step="1" required',
+  gradeAttributes = 'type="number" dir="ltr" min="0" max="100" step="1"';
 function distribution(s) {
   let total = s.bins.reduce((a, b) => a + b, 0);
   if (!total) return `<p class="distribution-empty">${esc(t("noGradedCourses"))}</p>`;
@@ -391,7 +398,7 @@ function render() {
             .map((d) => {
               let s = summary(courses(d)),
                 p = (s.credits / d.requiredCredits) * 100;
-              return `<article class="card degree-card"><div class="degree-card-head"><h2>${esc(d.name)}</h2>${degreeOptions(d)}</div><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small class="progress-caption"><bdi>${p.toFixed(1)}%</bdi></small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}</div></article>`;
+              return `<article class="card degree-card"><div class="degree-card-head"><h2>${esc(d.name)}</h2>${degreeOptions(d)}</div><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${formatCredits(s.credits)} <span class="unit">/ ${formatRequiredCredits(d.requiredCredits)}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small class="progress-caption"><bdi>${p.toFixed(1)}%</bdi></small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}</div></article>`;
             })
             .join("")}</div>`
     }`;
@@ -404,22 +411,22 @@ function render() {
   let y = d.years[yearIndex],
     s = summary(courses(d)),
     ys = summary(yearCourses(y));
-  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("insights", t("insights")) : ""}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation">${simulationHeader(d, real)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("yearAverage"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"), availableSemesters(y).length ? "" : `disabled title="${esc(t("allSemestersExist"))}"`)}</div>` : ""}${[...y.semesters, ...((y.yearlyCourses?.length || !simulation) ? [{id: "yearly:" + y.id, name: "Yearly", courses: y.yearlyCourses || []}] : [])].map(sem => courseSection(sem, real)).join("")}`;
+  root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("insights", t("insights")) : ""}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation">${simulationHeader(d, real)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${formatCredits(s.credits)} <span class="unit">/ ${formatRequiredCredits(d.requiredCredits)}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("yearAverage"), avg(ys.average))}${metric(t("credits"), formatCredits(ys.credits))}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"), availableSemesters(y).length ? "" : `disabled title="${esc(t("allSemestersExist"))}"`)}</div>` : ""}${[...y.semesters, ...((y.yearlyCourses?.length || !simulation) ? [{id: "yearly:" + y.id, name: "Yearly", courses: y.yearlyCourses || []}] : [])].map(sem => courseSection(sem, real)).join("")}`;
 }
 function courseSection(sem, real) {
   const yearly = sem.name === "Yearly" && sem.id.startsWith("yearly:"), ss = summary(sem.courses);
-  return `<section class="semester" data-section="${sem.id}"><div class="semester-head"><div><h2>${esc(yearly ? t("yearlyCourses") : semName(sem))}</h2><p data-section-summary><bdi>${ss.credits}</bdi> ${t("credits")}${yearly ? "" : " · " + t("semesterAverage") + " <bdi>" + avg(ss.average) + "</bdi>"}</p></div>${!simulation ? `<div class="actions">${button("addCourse", t("addCourse"), `data-sem="${sem.id}"`)}${!yearly ? semesterManagementMenu(sem) : ""}</div>` : ""}</div>${!sem.courses.length ? `<p class="muted">${t("none")}</p>` : sem.courses.map(c => courseCard(c, real)).join("")}</section>`;
+  return `<section class="semester" data-section="${sem.id}"><div class="semester-head"><div><h2>${esc(yearly ? t("yearlyCourses") : semName(sem))}</h2><p data-section-summary><bdi>${formatCredits(ss.credits)}</bdi> ${t("credits")}${yearly ? "" : " · " + t("semesterAverage") + " <bdi>" + avg(ss.average) + "</bdi>"}</p></div>${!simulation ? `<div class="actions">${button("addCourse", t("addCourse"), `data-sem="${sem.id}"`)}${!yearly ? semesterManagementMenu(sem) : ""}</div>` : ""}</div>${!sem.courses.length ? `<p class="muted">${t("none")}</p>` : sem.courses.map(c => courseCard(c, real)).join("")}</section>`;
 }
 function courseCard(c, real) {
   const changed = simulation && simulationChanged(c, locate(real, c.id)?.c);
-  return `<article data-course-card="${c.id}" class="course ${simulation ? "sim-course" : ""} ${changed ? "simulation-changed" : ""}"><div class="sim-fields"><h3>${esc(c.name)} <span class="changed-badge" ${changed ? "" : "hidden"}>${esc(t("changed"))}</span></h3><small>${c.credits} ${t("creditPoints")}${c.usesComponents && final(c) === null ? " · " + t("incomplete") : ""}</small>${simulation && c.passed == null ? (c.usesComponents ? c.components.map((p, i) => `<div class="sim-component"><small>${esc(p.name)} · <bdi>${p.weight}%</bdi></small>${simControls(c, p.grade, i)}</div>`).join("") : simControls(c, c.grade, -1)) : ""}</div><div class="course-end"><span class="course-grade"><bdi>${c.passed != null ? t(c.passed ? "passed" : "failed") : final(c) ?? "—"}</bdi></span>${!simulation ? courseOptions(c) : ""}</div></article>`;
+  return `<article data-course-card="${c.id}" class="course ${simulation ? "sim-course" : ""} ${changed ? "simulation-changed" : ""}"><div class="sim-fields"><h3>${esc(c.name)} <span class="changed-badge" ${changed ? "" : "hidden"}>${esc(t("changed"))}</span></h3><small>${formatCredits(c.credits)} ${t("creditPoints")}${c.usesComponents && final(c) === null ? " · " + t("incomplete") : ""}</small>${simulation && c.passed == null ? (c.usesComponents ? c.components.map((p, i) => `<div class="sim-component"><small>${esc(p.name)} · <bdi>${p.weight}%</bdi></small>${simControls(c, p.grade, i)}</div>`).join("") : simControls(c, c.grade, -1)) : ""}</div><div class="course-end"><span class="course-grade"><bdi>${c.passed != null ? t(c.passed ? "passed" : "failed") : formatGrade(final(c))}</bdi></span>${!simulation ? courseOptions(c) : ""}</div></article>`;
 }
 function semesterManagementMenu(sem) {
   return `<details class="course-menu semester-menu"><summary aria-label="${esc(t("semesterOptions") + ": " + semName(sem))}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary><div class="course-menu-actions">${button("editSemester", t("editSemester"), `data-sem="${sem.id}"`)}${button("deleteSemester", t("deleteSemester"), `class="danger" data-sem="${sem.id}"`)}</div></details>`;
 }
 
 function simControls(c, g, i) {
-  return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" dir="ltr" min="0" max="100" step="any" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `dir="ltr" data-delta="${n}" ${simulationBumpEnabled(g, n) ? "" : "disabled"}`)).join("")}${button("reset", "↺ " + t("reset"))}</div>`;
+  return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" dir="ltr" min="0" max="100" step="1" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `dir="ltr" data-delta="${n}" ${simulationBumpEnabled(g, n) ? "" : "disabled"}`)).join("")}${button("reset", "↺ " + t("reset"))}</div>`;
 }
 function degreeOptions(d) {
   return `<details class="course-menu degree-menu"><summary aria-label="${esc(t("degreeOptions") + ": " + d.name)}" title="${esc(t("degreeOptions"))}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary><div class="course-menu-actions">${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("deleteDegree", t("delete"), `class="danger" data-id="${d.id}"`)}</div></details>`;
@@ -484,11 +491,12 @@ function degreeForm(id) {
         t("required"),
         input(
           "requiredCredits",
-          d?.requiredCredits || 120,
-          'type="number" min="0.01" max="10000" step="any" required',
+          formatRequiredCredits(d?.requiredCredits || 120),
+          requiredCreditAttributes,
         ),
       ),
     async (f) => {
+      if (!validRequiredCredits(Number(f.get("requiredCredits")))) throw Error(t("wholeRequiredCredits"));
       await change(() => {
         let values = {
           name: f.get("name").trim(),
@@ -546,7 +554,7 @@ function courseForm(id, semId) {
         t("mode"),
         `<select id="mode"><option value="direct">${t("direct")}</option><option value="binary" ${c.passed != null ? "selected" : ""}>${t("binary")}</option><option value="components" ${c.usesComponents ? "selected" : ""}>${t("components")}</option></select>`,
       ) +
-      `<div id="direct">${label(t("grade"), input("grade", c.grade, 'type="number" min="0" max="100" step="any"'))}</div><div id="binaryGrade">${label(t("grade"), `<select name="passed"><option value="true" ${c.passed !== false ? "selected" : ""}>${t("passed")}</option><option value="false" ${c.passed === false ? "selected" : ""}>${t("failed")}</option></select>`)}</div><div id="componentEditor"></div>`,
+      `<div id="direct">${label(t("grade"), input("grade", c.grade, gradeAttributes))}</div><div id="binaryGrade">${label(t("grade"), `<select name="passed"><option value="true" ${c.passed !== false ? "selected" : ""}>${t("passed")}</option><option value="false" ${c.passed === false ? "selected" : ""}>${t("failed")}</option></select>`)}</div><div id="componentEditor"></div>`,
     async (f) => {
       let usesComponents = $("#mode").value === "components";
       let components = [...document.querySelectorAll(".component-row")].map(
@@ -573,6 +581,7 @@ function courseForm(id, semId) {
               : Number(f.get("grade")),
           components: usesComponents ? components : [],
         };
+        if (!validGrade(updated.grade) || updated.components.some(part => !validGrade(part.grade))) throw Error(t("wholeGrade"));
         const destination = f.get("semester");
         if (found) {
           const source = found.s.courses, index = source.findIndex(x => x.id === id);
@@ -611,7 +620,7 @@ function courseForm(id, semId) {
       ps
         .map(
           (p, i) =>
-            `<div class="component-row">${label(t("name"), `<input data-name value="${esc(p.name)}" required maxlength="200">`)}${label(t("weight"), `<input data-weight type="number" value="${esc(p.weight)}" min="0.01" max="1000" step="any" required>`)}${label(t("grade"), `<input data-grade type="number" value="${esc(p.grade ?? "")}" min="0" max="100" step="any">`)}<button type="button" data-remove="${i}" aria-label="${t("remove")}">×</button></div>`,
+            `<div class="component-row">${label(t("name"), `<input data-name value="${esc(p.name)}" required maxlength="200">`)}${label(t("weight"), `<input data-weight type="number" value="${esc(p.weight)}" min="0.01" max="1000" step="any" required>`)}${label(t("grade"), `<input data-grade type="number" value="${esc(p.grade ?? "")}" min="0" max="100" step="1">`)}<button type="button" data-remove="${i}" aria-label="${t("remove")}">×</button></div>`,
         )
         .join("") +
       `<p id="weightTotal"></p><p id="weightWarning" class="weight-warning">${t("warning")}</p><button type="button" id="addComponent">${t("addComponent")}</button>`;
@@ -644,6 +653,10 @@ function courseForm(id, semId) {
   draw();
 }
 function applySim(el, action, value) {
+  if (action !== "reset" && value !== "" && !validGrade(Number(value))) {
+    el.setCustomValidity(t("wholeGrade")); el.reportValidity(); return;
+  }
+  el.setCustomValidity("");
   let box = el.closest(".quick"),
     found = locate(simulation, box.dataset.course),
     original = locate(
@@ -666,13 +679,13 @@ function updateSimulationView() {
   const real = data.degrees.find(d => d.id === selected), y = simulation.years[yearIndex];
   $(".simulation").innerHTML = simulationHeader(simulation, real);
   const ys = summary(yearCourses(y));
-  $(".year-summary .metrics").innerHTML = metric(t("yearAverage"), avg(ys.average)) + metric(t("credits"), ys.credits) + metric(t("courses"), ys.count);
+  $(".year-summary .metrics").innerHTML = metric(t("yearAverage"), avg(ys.average)) + metric(t("credits"), formatCredits(ys.credits)) + metric(t("courses"), ys.count);
   for (const c of yearCourses(y)) {
     const card = document.querySelector(`[data-course-card="${c.id}"]`);
     const changed = simulationChanged(c, locate(real, c.id)?.c);
     card.classList.toggle("simulation-changed", changed);
     card.querySelector(".changed-badge").hidden = !changed;
-    card.querySelector(".course-grade").innerHTML = `<bdi>${c.passed != null ? t(c.passed ? "passed" : "failed") : final(c) ?? "—"}</bdi>`;
+    card.querySelector(".course-grade").innerHTML = `<bdi>${c.passed != null ? t(c.passed ? "passed" : "failed") : formatGrade(final(c))}</bdi>`;
     card.querySelectorAll(".quick").forEach(box => {
       const i = Number(box.dataset.component), grade = i < 0 ? c.grade : c.components[i].grade;
       box.querySelectorAll("[data-delta]").forEach(button => button.disabled = !simulationBumpEnabled(grade, Number(button.dataset.delta)));
@@ -680,7 +693,7 @@ function updateSimulationView() {
   }
   for (const sem of [...y.semesters, ...(y.yearlyCourses?.length ? [{id: "yearly:" + y.id, courses:y.yearlyCourses, yearly:true}] : [])]) {
     const ss = summary(sem.courses);
-    document.querySelector(`[data-section="${sem.id}"] [data-section-summary]`).innerHTML = `<bdi>${ss.credits}</bdi> ${t("credits")}${sem.yearly ? "" : " · " + t("semesterAverage") + " <bdi>" + avg(ss.average) + "</bdi>"}`;
+    document.querySelector(`[data-section="${sem.id}"] [data-section-summary]`).innerHTML = `<bdi>${formatCredits(ss.credits)}</bdi> ${t("credits")}${sem.yearly ? "" : " · " + t("semesterAverage") + " <bdi>" + avg(ss.average) + "</bdi>"}`;
   }
 }
 $("#app").addEventListener("input", (e) => {
@@ -852,7 +865,7 @@ $("#app").addEventListener("click", async (e) => {
           `<h3>${esc(target.name)}</h3>${target.years
             .map((y, i) => {
               let s = summary(yearCourses(y));
-              return `<div class="report-line"><strong>${yearName(i)}</strong> · ${avg(s.average)} · ${s.credits} ${t("credits")} · ${s.count} ${t("courses")}</div>`;
+              return `<div class="report-line"><strong>${yearName(i)}</strong> · ${avg(s.average)} · ${formatCredits(s.credits)} ${t("credits")} · ${s.count} ${t("courses")}</div>`;
             })
             .join("")}${distribution(summary(courses(target)))}`,
           null,

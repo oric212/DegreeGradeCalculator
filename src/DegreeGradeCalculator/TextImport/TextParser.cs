@@ -120,7 +120,7 @@ public sealed partial class TextCourseParser : ITextCourseParser
             if (string.IsNullOrWhiteSpace(row.Name) || row.Name.Length > 200) row.Warnings.Add("invalid-name");
             if (row.Credits is null or <= 0 or > 1000) row.Warnings.Add("invalid-credits");
             row.Passed = BinaryStatus(Get("grade"));
-            if (Get("grade").Length > 0 && row.Passed is null && row.Grade is null or < 0 or > 100) row.Warnings.Add("invalid-grade");
+            if (Get("grade").Length > 0 && row.Passed is null && (row.Grade is null or < 0 or > 100 || row.Grade != decimal.Truncate(row.Grade.Value))) row.Warnings.Add("invalid-grade");
             if (Get("year").Length > 0 && row.Year is null) row.Warnings.Add("unknown-year");
             if (Get("semester").Length > 0 && row.Semester is null) row.Warnings.Add("unknown-semester");
             if (header && cells.Count != first!.Count) row.Warnings.Add("column-count");
@@ -187,7 +187,7 @@ public sealed partial class TextCourseParser : ITextCourseParser
         };
         if (row.Credits is null or <= 0 or > 1000) row.Warnings.Add("invalid-credits");
         var hasStatus = Regex.IsMatch(Get("grade"), $@"^(?:{status})$", RegexOptions.IgnoreCase);
-        if (!hasStatus && row.Grade is null or < 0 or > 100) row.Warnings.Add("invalid-grade");
+        if (!hasStatus && (row.Grade is null or < 0 or > 100 || row.Grade != decimal.Truncate(row.Grade.Value))) row.Warnings.Add("invalid-grade");
         row.Passed = BinaryStatus(Get("grade"));
         if (hasStatus && row.Passed is null) row.Warnings.Add("non-numeric-status");
         if (row.Name.Length > 200) row.Warnings.Add("invalid-name");

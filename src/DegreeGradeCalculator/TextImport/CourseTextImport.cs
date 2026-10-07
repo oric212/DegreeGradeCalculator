@@ -48,7 +48,7 @@ public static class CourseTextImport
             if (!row.Included) continue;
             if (string.IsNullOrWhiteSpace(row.Name) || row.Name.Length > 200) throw new ArgumentException("invalid-name");
             if (row.Credits is null or <= 0 or > 1000) throw new ArgumentException("invalid-credits");
-            if (row.Grade is < 0 or > 100 || (row.Passed.HasValue && row.Grade.HasValue)) throw new ArgumentException("invalid-grade");
+            if (row.Grade is < 0 or > 100 || (row.Grade.HasValue && row.Grade.Value != decimal.Truncate(row.Grade.Value)) || (row.Passed.HasValue && row.Grade.HasValue)) throw new ArgumentException("invalid-grade");
             var year = row.Year ?? r.DefaultYear;
             if (year < 1 || year > 100) throw new ArgumentException("invalid-destination");
             while (degree.Years.Count < year) degree.Years.Add(new AcademicYear { Semesters = [new Semester { Name = "A" }, new Semester { Name = "B" }] });
@@ -93,8 +93,8 @@ public static class CourseTextImport
                 added++;
             }
             string Cell(string value) => value.Contains('|') || value.Contains('"') || value.Contains('\n') || value.Contains('\r') ? '"' + value.Replace("\"", "\"\"") + '"' : value;
-            normalized.Add(string.Join(" | ", Cell(row.Name.Trim()), row.Credits!.Value.ToString(CultureInfo.InvariantCulture),
-                row.Passed.HasValue ? (row.Passed.Value ? "Completed" : "Failed") : row.Grade?.ToString(CultureInfo.InvariantCulture) ?? "",
+            normalized.Add(string.Join(" | ", Cell(row.Name.Trim()), row.Credits!.Value.ToString("G29", CultureInfo.InvariantCulture),
+                row.Passed.HasValue ? (row.Passed.Value ? "Completed" : "Failed") : row.Grade?.ToString("G29", CultureInfo.InvariantCulture) ?? "",
                 $"Year {year}", Cell(semester.Name is "A" or "B" ? $"Semester {semester.Name}" : semester.Name == "Summer" ? "Summer" : semester.Name)));
         }
         return (new(added + updated, skipped, duplicates, string.Join('\n', normalized), added, updated, unchanged, updates, repeats.Distinct().ToList(), token), degree);

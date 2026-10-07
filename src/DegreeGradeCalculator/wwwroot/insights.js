@@ -13,7 +13,7 @@ function insightGraph(points) {
   const ticks = Array.from({length: 5}, (_, i) => min + (max - min) * i / 4);
   return `<svg class="insight-graph" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(t("cumulative"))}" xmlns="http://www.w3.org/2000/svg">
     <title>${esc(t("cumulative"))}</title><desc>${esc(points.map(p => insightPeriod(p.period) + ": " + p.formatted).join("; "))}</desc>
-    ${ticks.map(value => `<line x1="${left}" y1="${y(value)}" x2="${width-right}" y2="${y(value)}" class="graph-grid"/><text x="${left-12}" y="${y(value)+4}" text-anchor="end">${value.toFixed(1)}</text>`).join("")}
+    ${ticks.map(value => `<line x1="${left}" y1="${y(value)}" x2="${width-right}" y2="${y(value)}" class="graph-grid"/><text x="${left-12}" y="${y(value)+4}" text-anchor="end">${value.toFixed(2)}</text>`).join("")}
     ${points.length > 1 ? `<polygon points="${x(0)},${height-bottom} ${line} ${x(points.length-1)},${height-bottom}" fill="#245dc114"/><polyline points="${line}" fill="none" stroke="#245dc1" stroke-width="3" stroke-linejoin="round"/>` : ""}
     ${points.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.average)}" r="5" fill="#245dc1" stroke="white" stroke-width="2"><title>${esc(insightPeriod(p.period))}: ${p.formatted}</title></circle>${i === 0 || i === points.length-1 || points.length <= 8 ? `<text x="${x(i)}" y="${height-14}" text-anchor="middle">${i+1}</text>` : ""}`).join("")}
   </svg>`;
@@ -21,9 +21,9 @@ function insightGraph(points) {
 function renderInsights(degree) {
   const result = degreeInsights(degree);
   const rows = (entries, impact = false) => `<ol class="insight-list">${entries.map((entry, index) => `<li>
-    <span class="insight-rank"><bdi>${index+1}</bdi></span><div class="insight-course"><h3>${esc(entry.course.name)}</h3><small>${esc(insightPeriod(entry.period))} · <bdi>${entry.course.credits}</bdi> ${esc(t("creditPoints"))}</small>
-    ${impact ? `<div class="insight-weight"><span style="width:${entry.share}%"></span></div><small>${esc(t("gpaShare"))}: <bdi>${entry.share.toFixed(1)}%</bdi> · ${esc(t("grade"))}: <bdi>${entry.grade}</bdi></small>` : `<small class="insight-status ${entry.counted ? "" : "muted"}">${esc(t(entry.counted ? "countedAttempt" : "previousAttempt"))}</small>`}</div>
-    <div class="insight-value"><strong><bdi>${impact ? entry.difference === null ? "—" : (entry.difference >= 0 ? "+" : "−") + Math.abs(entry.difference).toFixed(2) : entry.grade}</bdi></strong>${impact ? `<small>${esc(t(entry.difference === null ? "onlyCourse" : "impactPoints"))}</small>` : ""}</div>
+    <span class="insight-rank"><bdi>${index+1}</bdi></span><div class="insight-course"><h3>${esc(entry.course.name)}</h3><small>${esc(insightPeriod(entry.period))} · <bdi>${formatCredits(entry.course.credits)}</bdi> ${esc(t("creditPoints"))}</small>
+    ${impact ? `<div class="insight-weight"><span style="width:${entry.share}%"></span></div><small>${esc(t("gpaShare"))}: <bdi>${entry.share.toFixed(1)}%</bdi> · ${esc(t("grade"))}: <bdi>${formatGrade(entry.grade)}</bdi></small>` : `<small class="insight-status ${entry.counted ? "" : "muted"}">${esc(t(entry.counted ? "countedAttempt" : "previousAttempt"))}</small>`}</div>
+    <div class="insight-value"><strong><bdi>${impact ? entry.difference === null ? "—" : (entry.difference >= 0 ? "+" : "−") + Math.abs(entry.difference).toFixed(2) : formatGrade(entry.grade)}</bdi></strong>${impact ? `<small>${esc(t(entry.difference === null ? "onlyCourse" : "impactPoints"))}</small>` : ""}</div>
   </li>`).join("")}</ol>`;
   $("#app").innerHTML = `<div class="heading"><div>${button("degreeCourses", (data.language === "he" ? "› " : "‹ ") + t("returnToDegree"))}<h1>${esc(t("insights"))}</h1><p>${esc(degree.name)}</p></div><span class="insights-badge">${esc(t("readOnly"))}</span></div>
     <p class="insights-intro">${esc(t("insightsIntro"))}</p>
