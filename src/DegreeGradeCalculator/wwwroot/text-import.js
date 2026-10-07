@@ -234,7 +234,8 @@ function calendarMappingPanel() {
 }
 function fallbackDestinationPanel() {
   const missing = importDraft.rows.filter(row => row.included && (!row.year || !row.semester)).length;
-  return `<details class="fallback-destinations" ${missing ? "open" : ""}><summary>${t("fallbackTitle")}${missing ? ` · ${missing} ${t("courses")}` : ""}</summary><p>${t(missing ? "fallbackHelp" : "fallbackUnused")}</p><div class="fallback-fields">${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(importDraft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(importDraft.defaultYear, importDraft.defaultSemester, false)}</select>`)}</div></details>`;
+  if (!missing) return "";
+  return `<details class="fallback-destinations" open><summary>${t("fallbackTitle")}${missing ? ` · ${missing} ${t("courses")}` : ""}</summary><p>${t(missing ? "fallbackHelp" : "fallbackUnused")}</p><div class="fallback-fields">${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(importDraft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(importDraft.defaultYear, importDraft.defaultSemester, false)}</select>`)}</div></details>`;
 }
 function groupedReviewCards() {
   const years = new Map();

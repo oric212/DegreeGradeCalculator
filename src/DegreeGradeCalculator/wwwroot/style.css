@@ -567,3 +567,6 @@ header nav button {
 }
 .legend span { display: inline-flex; align-items: center; gap: 4px; }
 .legend .dot { margin-inline-end: 0; flex-shrink: 0; }
+.distribution span + span { box-shadow: inset 1px 0 0 #ffffffb3; }
+.simulation .legend { color: #e1ebfb; }
+.legend .dot { border: 1px solid #7893b140; }

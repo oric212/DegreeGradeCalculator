@@ -213,7 +213,7 @@ const avg = (n) => {
       String(rounded / 100n) + "." + String(rounded % 100n).padStart(2, "0")
     );
   },
-  colors = ["#9baac0", "#7793bd", "#5583c5", "#346cc0", "#174988"];
+  colors = ["#d1e2f8", "#9bbfe9", "#6097d6", "#286bb5", "#103d78"];
 function distribution(s) {
   let total = s.bins.reduce((a, b) => a + b, 0);
   if (!total) return `<p class="distribution-empty">${esc(t("noGradedCourses"))}</p>`;

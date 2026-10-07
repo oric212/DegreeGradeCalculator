@@ -16,7 +16,7 @@ Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the
 - Horizontal year navigation with arrows or pointer/touch swipes; vertically stacked semesters. New years start with Semester A and B; add summer or custom semesters as needed.
 - Course dialogs with decimal credits, optional direct grades, or weighted components. Courses can move between semesters and years.
 - Course Edit/Delete actions are grouped in a compact three-dot menu.
-- Clearly labeled degree, year, and semester averages, graded-credit progress, reports, and five-category grade distribution.
+- Clearly labeled degree, year, and semester averages, graded-credit progress, reports, and five-category grade distribution with distinct light-to-dark blue shades and matching legend markers.
 - Temporary simulation with exact grade entry, ±1/±5, reset, and component-level controls in the normal degree layout.
 - Hebrew RTL and English LTR, with a persisted language choice.
 - JSON export and validated restore; confirmation for restore and deletion.
@@ -38,7 +38,7 @@ The database is `%LOCALAPPDATA%\DegreeGradeCalculator\grades.db`. Replacing the 
 
 ## Import grades from text
 
-Choose **Import grades** on the dashboard or degree page. Paste copied text and select **Parse text**, then review course names, credits, grades, years, and semesters in editable cards grouped by destination year and semester. Changing a destination moves the card into its matching group. Choose a target degree. Each course keeps its own detected year and semester. Fallback year/semester controls live under **Courses with missing year or semester** and only fill missing destinations; they never override detected ones. Exclude unwanted rows, fix highlighted fields, and confirm **Import courses** to save. Parsing and preview never write to the database.
+Choose **Import grades** on the dashboard or degree page. Paste copied text and select **Parse text**, then review course names, credits, grades, years, and semesters in editable cards grouped by destination year and semester. Changing a destination moves the card into its matching group. Choose a target degree. Each course keeps its own detected year and semester. Fallback year/semester controls appear under **Courses with missing year or semester** only when an included course needs them. The section is hidden when all courses are matched; fallback values never override detected destinations. Exclude unwanted rows, fix highlighted fields, and confirm **Import courses** to save. Parsing and preview never write to the database.
 
 Supported formats include pipes (`Creative Coding | 3 | 81`), CSV including quoted names, spreadsheet tabs, semicolons, spaced columns, `Creative Coding 3 credits 81`, and `Creative Coding - 3 - 81`. English/Hebrew headers and year/semester names are recognized. Decimal credits and blank grades are supported. Decimal commas work in non-comma-separated cells or quoted CSV cells.
 

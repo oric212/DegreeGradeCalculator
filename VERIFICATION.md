@@ -35,3 +35,5 @@ Import destination controls verified: target degree stands alone; fallback year 
 Import grade-mode toggle verified in the browser: Passed to numeric 86 to Failed to numeric restores 86, then back to binary restores Failed. Another numeric row toggled to binary and back retains 94; neighboring grade 73 and all destinations remain unchanged. Preview and final confirmation reflect only active grading values. English import screenshots refreshed.
 
 Average labels verified in English and Hebrew: degree summary uses Degree average / ממוצע תואר; year summary uses Year average / ממוצע שנתי; semester headers use Semester average / ממוצע סמסטר. Simulation uses the same scope labels. Affected English screenshots recaptured.
+
+Grade distribution uses five widely spaced blue shades, from pale blue below 60 to navy at 90+, with thin segment separators and matching legend dots. Simulation legend text has improved contrast. Browser verification displayed all five categories using fictional courses. Missing-destination controls are absent for fully matched courses and reappear when a course destination is cleared. All affected English screenshots refreshed.
