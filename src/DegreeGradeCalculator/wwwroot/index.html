@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Degree Grade Calculator</title>
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <a href="#" class="brand">◈ <span>GradePilot</span></a>
+      <nav>
+        <button id="language">עברית</button><button id="export"></button
+        ><button id="import"></button><button id="shutdown"></button>
+      </nav>
+    </header>
+    <main id="app"></main>
+    <input type="file" id="file" accept="application/json,.json" hidden />
+    <dialog id="dialog">
+      <form id="form">
+        <div id="fields"></div>
+        <footer>
+          <button type="button" id="cancel"></button
+          ><button type="submit" class="primary" id="save"></button>
+        </footer>
+      </form>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

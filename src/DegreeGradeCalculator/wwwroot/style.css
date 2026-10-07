@@ -1,0 +1,414 @@
+:root {
+  font-family:
+    Segoe UI,
+    Arial,
+    sans-serif;
+  color: #172d50;
+  background: #f1f6fc;
+  line-height: 1.5;
+  --accent: #245dc1;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 5%;
+  background: white;
+  border-bottom: 1px solid #dfe8f5;
+  gap: 16px;
+}
+.brand {
+  font-size: 25px;
+  font-weight: 750;
+  color: #183c75;
+  text-decoration: none;
+}
+nav,
+.actions,
+.quick {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+button {
+  font: inherit;
+  border: 1px solid #cfdbec;
+  background: white;
+  color: #25446d;
+  border-radius: 10px;
+  padding: 9px 15px;
+  cursor: pointer;
+}
+button:hover {
+  background: #e8f0fc;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.primary {
+  background: #173b70;
+  color: white;
+  border-color: #173b70;
+}
+.primary:hover {
+  background: #24518e;
+}
+.danger {
+  color: #963d62;
+}
+main {
+  max-width: 1140px;
+  margin: 38px auto;
+  padding: 0 24px;
+}
+h1 {
+  font-size: 36px;
+  letter-spacing: -1px;
+  margin: 0 0 8px;
+}
+h2,
+h3 {
+  margin: 0;
+}
+p {
+  color: #657895;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+.card,
+.semester {
+  background: white;
+  border: 1px solid #e0e8f3;
+  border-radius: 24px;
+  padding: 26px;
+  margin-bottom: 22px;
+  box-shadow: 0 7px 24px #28486d08;
+}
+.degree-card h2 {
+  margin-bottom: 22px;
+}
+.metrics {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.metric small {
+  display: block;
+  color: #687d99;
+}
+.metric strong {
+  font-size: 34px;
+  font-weight: 650;
+}
+.metric .unit {
+  font-size: 19px;
+}
+.progress {
+  height: 9px;
+  background: #e5edfa;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+.progress div {
+  background: #3c78d8;
+  height: 100%;
+}
+.distribution {
+  display: flex;
+  min-height: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e8eff9;
+  margin: 18px 0 10px;
+}
+.distribution span {
+  min-width: 0;
+}
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #50637e;
+}
+.dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-inline-end: 5px;
+}
+.year-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 22px 0;
+}
+.year-summary {
+  background: #e7f0ff;
+  box-shadow: none;
+}
+.semester-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.semester-head p {
+  margin: 4px 0;
+}
+.course {
+  border-top: 1px solid #e7edf6;
+  padding: 18px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+.course h3 {
+  font-size: 17px;
+}
+.course small {
+  color: #71839b;
+}
+.course-grade {
+  font-size: 27px;
+  font-weight: 650;
+  min-width: 48px;
+  text-align: center;
+}
+.course-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.simulation {
+  background: #173b70;
+  color: white;
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.simulation p,
+.simulation small {
+  color: #c6daf8;
+}
+.sim-course {
+  align-items: flex-start;
+}
+.sim-fields {
+  flex: 1;
+}
+.sim-component {
+  padding: 10px 0;
+}
+.quick input {
+  width: 85px;
+}
+.quick button {
+  padding: 5px 10px;
+}
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+.muted {
+  color: #7386a0;
+}
+.weight-warning {
+  color: #845e16;
+  background: #fff6dd;
+  padding: 10px;
+  border-radius: 10px;
+}
+dialog {
+  border: 0;
+  border-radius: 22px;
+  padding: 28px;
+  width: min(650px, calc(100% - 30px));
+  max-height: 90vh;
+  box-shadow: 0 24px 100px #102c6066;
+}
+dialog::backdrop {
+  background: #142d5266;
+}
+dialog h2 {
+  margin-bottom: 20px;
+}
+label {
+  display: block;
+  margin: 13px 0;
+  color: #405572;
+  font-size: 14px;
+}
+input,
+select {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #becde2;
+  border-radius: 9px;
+  font: inherit;
+  color: #172d50;
+  background: white;
+}
+input:focus,
+select:focus {
+  border-color: #245dc1;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #75a6f0;
+  outline-offset: 3px;
+}
+.form-row {
+  display: flex;
+  gap: 14px;
+}
+.form-row label {
+  flex: 1;
+}
+.component-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+}
+.component-row button {
+  margin-bottom: 13px;
+}
+footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+#toast {
+  position: fixed;
+  bottom: 24px;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  background: #173b70;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  display: none;
+  z-index: 5;
+  max-width: 90vw;
+}
+.report-line {
+  padding: 10px 0;
+  border-bottom: 1px solid #e5edfa;
+}
+.section-label {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #58739a;
+}
+.sub-actions {
+  margin: 16px 0 26px;
+}
+@media (max-width: 650px) {
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 20px;
+  }
+  nav button {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+  main {
+    padding: 0 16px;
+    margin-top: 24px;
+  }
+  h1 {
+    font-size: 28px;
+  }
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .card,
+  .semester {
+    padding: 20px;
+    border-radius: 18px;
+  }
+  .course {
+    gap: 10px;
+  }
+  .course-end {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .course-end button {
+    padding: 6px 9px;
+  }
+  .metrics {
+    gap: 22px;
+  }
+  .metric strong {
+    font-size: 28px;
+  }
+  .component-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .component-row label:first-child {
+    grid-column: 1/-1;
+  }
+  .sim-course {
+    flex-direction: column;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+:root[dir="rtl"] .metric strong {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+:root[dir="rtl"] .legend span {
+  unicode-bidi: plaintext;
+}
+.quick input {
+  direction: ltr;
+}
+#app { touch-action: pan-y; }
+.grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+@media (max-width: 650px) { .semester-head { align-items: flex-start; flex-direction: column; } }
+/* Keep the brand on the right and toolbar actions in a stable order. */
+header { direction: rtl; }
+header .brand, header nav { direction: ltr; }
+header nav { display: grid; grid-template-columns: 90px 125px 125px 105px; }
+@media (max-width: 650px) {
+  header { align-items: stretch; }
+  header .brand { align-self: flex-start; }
+  header nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

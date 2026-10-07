@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DegreeGradeCalculator/DegreeGradeCalculator.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DegreeGradeCalculator.Tests/DegreeGradeCalculator.Tests.csproj" />
+  </Folder>
+</Solution>

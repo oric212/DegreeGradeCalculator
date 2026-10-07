@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.vs/
+.idea/
+release/
+.cli/
+*.db
+*.db-*
+*.user
+test-data/
+ui-test/
