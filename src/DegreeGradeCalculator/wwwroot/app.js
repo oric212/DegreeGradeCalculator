@@ -43,7 +43,7 @@ const words = {
     semester: "Semester",
     summer: "Summer semester",
     addYear: "Add year",
-    removeYear: "Remove last year",
+    removeYear: "Remove last year", removeYearTitle: "Remove last year?", removeYearHelp: "This permanently removes this year, its semesters, and all its courses. This cannot be undone.",
     addSemester: "Add semester",
     addCourse: "Add course",
     report: "Degree report",
@@ -106,7 +106,7 @@ const words = {
     semester: "סמסטר",
     summer: "קיץ",
     addYear: "הוספת שנה",
-    removeYear: "הסרת השנה האחרונה",
+    removeYear: "הסרת השנה האחרונה", removeYearTitle: "להסיר את השנה האחרונה?", removeYearHelp: "השנה, הסמסטרים וכל הקורסים שלה יימחקו לצמיתות. לא ניתן לבטל את המחיקה.",
     addSemester: "הוספת סמסטר",
     addCourse: "הוספת קורס",
     report: "סיכום התואר",
@@ -639,9 +639,18 @@ $("#app").addEventListener("click", async (e) => {
           yearIndex = d.years.length - 1;
         });
         break;
-      case "removeYear":
-        if (confirm(t("confirm"))) await change(() => d.years.pop());
+      case "removeYear": {
+        if (d.years.length <= 1) break;
+        const last = d.years[d.years.length - 1];
+        const count = last.semesters.reduce((total, semester) => total + semester.courses.length, 0);
+        dialog(t("removeYearTitle"), `<h3>${esc(yearName(d.years.length - 1))}</h3><p>${count} ${esc(t("courses"))}</p><p>${esc(t("removeYearHelp"))}</p>`, async () => {
+          await change(() => d.years.pop());
+        });
+        $("#save").textContent = t("removeYear");
+        $("#save").className = "danger";
+        $("#cancel").focus();
         break;
+      }
       case "addSemester":
       case "editSemester": {
         let s = y.semesters.find((s) => s.id === b.dataset.sem);
@@ -649,7 +658,7 @@ $("#app").addEventListener("click", async (e) => {
           t("semester"),
           label(
             t("semesterName"),
-            input("name", s?.name || "Summer", 'required maxlength="200"'),
+            `<select name="name">${[...new Set(["A", "B", "Summer", ...(s && !["A", "B", "Summer"].includes(s.name) ? [s.name] : [])])].map(name => `<option value="${esc(name)}" ${name === (s?.name || "Summer") ? "selected" : ""}>${esc(semName({name}))}</option>`).join("")}</select>`,
           ),
           async (f) =>
             change(() => {

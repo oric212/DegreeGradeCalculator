@@ -39,3 +39,5 @@ Average labels verified in English and Hebrew: degree summary uses Degree averag
 Grade distribution uses five widely spaced blue shades, from pale blue below 60 to navy at 90+, with thin segment separators and matching legend dots. Simulation legend text has improved contrast. Browser verification displayed all five categories using fictional courses. Missing-destination controls are absent for fully matched courses and reappear when a course destination is cleared. All affected English screenshots refreshed.
 
 Degree deletion is hidden in a three-dot menu and requires a named confirmation with Cancel focused first. Browser verification confirmed cancellation preserves the degree and logo navigation returns home from a degree and empty importer. New English menu and confirmation captures use fictional data.
+
+Last-year removal dialog verified: names Year 2, reports two courses, warns that the year and contents are removed, and focuses Cancel. Cancellation preserves the year. Semester Add/Edit uses predefined localized A/B/Summer options; English and Hebrew dropdowns verified. Existing custom names are preserved when editing.
