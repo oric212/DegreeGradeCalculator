@@ -173,6 +173,10 @@ Object.assign(words.he, {
 });
 let importDraft = null,
   previewSequence = 0;
+words.en.switchToBinary = "Use pass / fail";
+words.en.switchToNumeric = "Use numeric grade";
+words.he.switchToBinary = "מעבר לעובר / נכשל";
+words.he.switchToNumeric = "מעבר לציון מספרי";
 words.en.acceptBlankGrade = "Leave grade blank";
 words.he.acceptBlankGrade = "השארת הציון ריק";
 Object.assign(words.en, { addedCourses: "New courses", updatedCourses: "Courses to update", unchangedCourses: "Unchanged courses", updateDetails: "Review changes to existing courses", alreadyCurrent: "These courses are already up to date. Nothing needs to be imported.", repeatedRows: "Repeated rows in this draft use the last included occurrence.", replacesComponents: "The imported grade will replace the component calculation.", mergesDuplicates: "Existing duplicate entries will be merged into one course.", "import-changed": "Saved courses changed after review. Close this confirmation and review the import again." });
@@ -253,7 +257,7 @@ function groupedReviewCards() {
   ).join("");
 }
 function reviewCard(row, i) {
-  return `<article class="card import-row ${row.warnings.length ? "uncertain" : ""}" data-row="${i}"><div class="import-row-head"><h3 data-row-title>${esc(row.name || t("courses"))}</h3><label class="include-row"><input type="checkbox" data-field="included" ${row.included ? "checked" : ""}>${t("includeRow")}</label></div><div class="import-fields">${label(t("name"), `<input data-field="name" value="${esc(row.name)}" required maxlength="200">`)}${label(t("creditPoints"), `<input data-field="credits" type="number" min="0.01" max="1000" step="any" required value="${esc(row.credits ?? "")}">`)}${row.passed != null ? label(t("binary"), `<select data-field="passed"><option value="true" ${row.passed ? "selected" : ""}>${t("passed")}</option><option value="false" ${!row.passed ? "selected" : ""}>${t("failed")}</option><option value="numeric">${t("direct")}</option></select>`) : label(t("grade"), `<input data-field="grade" type="number" min="0" max="100" step="any" value="${esc(row.grade ?? "")}">`)}${label(t("year"), `<select data-field="year">${yearOptions(row.year, true)}</select>`)}${label(t("semester"), `<select data-field="semester">${semesterOptions(row.year, row.semester, true)}</select>`)}</div><div class="row-validation" aria-live="polite"></div>${row.invalidGradeUnresolved ? button("acceptBlankGrade", t("acceptBlankGrade"), `data-row-index="${i}"`) : ""}${row.warnings.map((w) => `<p class="import-note" data-warning="${w}">${esc(t(w))}${["invalid-credits", "invalid-grade", "unknown-year", "unknown-semester"].includes(w) ? ` <span dir="auto">(${esc(row.rawValues?.[{ "invalid-credits": "credits", "invalid-grade": "grade", "unknown-year": "year", "unknown-semester": "semester" }[w]] || "")})</span>` : ""}</p>`).join("")}<details><summary>${t("sourceLine")}</summary><pre>${esc(row.originalLine)}</pre></details></article>`;
+  return `<article class="card import-row ${row.warnings.length ? "uncertain" : ""}" data-row="${i}"><div class="import-row-head"><h3 data-row-title>${esc(row.name || t("courses"))}</h3><label class="include-row"><input type="checkbox" data-field="included" ${row.included ? "checked" : ""}>${t("includeRow")}</label></div><div class="import-fields">${label(t("name"), `<input data-field="name" value="${esc(row.name)}" required maxlength="200">`)}${label(t("creditPoints"), `<input data-field="credits" type="number" min="0.01" max="1000" step="any" required value="${esc(row.credits ?? "")}">`)}<div class="import-grade-field">${row.passed != null ? label(t("binary"), `<select data-field="passed"><option value="true" ${row.passed ? "selected" : ""}>${t("passed")}</option><option value="false" ${!row.passed ? "selected" : ""}>${t("failed")}</option></select>`) : label(t("grade"), `<input data-field="grade" type="number" min="0" max="100" step="any" value="${esc(row.grade ?? "")}">`)}${button("toggleImportGradeMode", t(row.passed != null ? "switchToNumeric" : "switchToBinary"), `class="grade-mode-toggle" data-row-index="${i}" aria-pressed="${row.passed != null}"`)}</div>${label(t("year"), `<select data-field="year">${yearOptions(row.year, true)}</select>`)}${label(t("semester"), `<select data-field="semester">${semesterOptions(row.year, row.semester, true)}</select>`)}</div><div class="row-validation" aria-live="polite"></div>${row.invalidGradeUnresolved ? button("acceptBlankGrade", t("acceptBlankGrade"), `data-row-index="${i}"`) : ""}${row.warnings.map((w) => `<p class="import-note" data-warning="${w}">${esc(t(w))}${["invalid-credits", "invalid-grade", "unknown-year", "unknown-semester"].includes(w) ? ` <span dir="auto">(${esc(row.rawValues?.[{ "invalid-credits": "credits", "invalid-grade": "grade", "unknown-year": "year", "unknown-semester": "semester" }[w]] || "")})</span>` : ""}</p>`).join("")}<details><summary>${t("sourceLine")}</summary><pre>${esc(row.originalLine)}</pre></details></article>`;
 }
 function importRequest(confirmed = false) {
   return {
@@ -367,7 +371,7 @@ $("#app").addEventListener("input", (event) => {
   if (card && el.dataset.field) {
     const row = importDraft.rows[Number(card.dataset.row)],
       field = el.dataset.field;
-    if (field === "passed") { row.passed = el.value === "numeric" ? null : el.value === "true"; row.grade = null; renderTextImport(); return; }
+    if (field === "passed") { row.passed = el.value === "true"; row.savedPassed = row.passed; row.grade = null; validateReview(); refreshImportPreview(); return; }
     row[field] =
       field === "included"
         ? el.checked
@@ -483,6 +487,20 @@ $("#app").addEventListener("click", async (event) => {
         invalidGradeUnresolved:
           c.grade === null && c.warnings.includes("invalid-grade"),
       }));
+      renderTextImport();
+    } else if (action === "toggleImportGradeMode") {
+      const row = importDraft.rows[Number(button.dataset.rowIndex)];
+      if (row.passed != null) {
+        row.savedPassed = row.passed;
+        row.passed = null;
+        row.grade = row.savedNumericGrade ?? null;
+      } else {
+        row.savedNumericGrade = row.grade;
+        row.passed = row.savedPassed ?? true;
+        row.grade = null;
+        row.invalidGradeUnresolved = false;
+        row.warnings = row.warnings.filter(w => w !== "invalid-grade");
+      }
       renderTextImport();
     } else if (action === "acceptBlankGrade") {
       const row = importDraft.rows[Number(button.dataset.rowIndex)];
