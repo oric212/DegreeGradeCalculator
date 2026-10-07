@@ -8,7 +8,7 @@ I built GradePilot because I was frustrated with the solutions I tried. Ads and 
 
 ## Getting started
 
-Download the [Windows release](https://github.com/oric212/GradePilot/releases/tag/1.0), extract it, and open **GradePilot.exe**. Keep the whole folder together. The compressed executable includes .NET and its dependencies, so there is nothing else to install.
+Download the [Windows release](https://github.com/oric212/GradePilot/releases/tag/v1.0), extract it, and open **GradePilot.exe**. Keep the whole folder together. The compressed executable includes .NET and its dependencies, so there is nothing else to install.
 
 Add a degree, then enter courses or use **Import grades**. The app opens in your browser, but your data stays on your computer. Closing the last app tab shuts down the local server; multiple tabs and page refresh are supported.
 
