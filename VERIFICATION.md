@@ -27,3 +27,5 @@ Repeat-import verification: identical rows are unchanged; updated grades and cre
 Empty summary verified in Hebrew using a fictional degree: compact dashboard card, one progress bar, explanatory distribution empty state, and isolated numeric labels.
 
 Release refresh verification: the complete executable and assets were republished together. HTML, JavaScript, and CSS return Cache-Control: no-store; updated HTML uses fresh asset URLs. Live HTTP integration coverage checks these headers. The real saved database hash was unchanged during replacement. All old captures were removed and replaced with eleven fresh screenshots from the exact release executable.
+
+Screenshot gallery replaced again after framing review: nine English-only captures, including English degree names and transcript text. Every image was visually inspected. Long degree, simulation, and import screens use full-page captures, with complete cards and actions; dialogs show all fields and buttons. No personal grades or mixed-language examples appear in the gallery.

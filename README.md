@@ -66,28 +66,26 @@ Parser contract: `POST /api/import/parse-text` accepts `{ "text": "..." }` and a
 
 ## Screenshots
 
-Fresh captures from the current Windows release executable, including the compact empty-degree state, grouped imports, and before/after update confirmation. All course names and grades are fictional demo data.
+Fresh English-only captures from the current Windows release. All names, transcript text, and grades are fictional demo data. Long screens are captured in full, and dialogs include every field and action.
 
 ![Dashboard and empty degree](screenshots/01-home.png)
 
 <details>
 <summary>Degree, course menu, component editor, and simulation</summary>
 
-![Degree page](screenshots/02-degree.png)
+![Complete degree page](screenshots/02-degree.png)
 ![Course menu](screenshots/03-course-menu.png)
-![Component grades](screenshots/04-components.png)
-![Simulation](screenshots/05-simulation.png)
+![Component editor](screenshots/04-components.png)
+![Complete simulation page](screenshots/05-simulation.png)
 
 </details>
 
 <details>
-<summary>Import: paste, supported formats, grouped review, and confirmation</summary>
+<summary>Import: paste, grouped review, unsupported rows, and confirmation</summary>
 
 ![Empty paste field](screenshots/06-import-paste.png)
-![Supported formats](screenshots/07-format-guide.png)
-![Year mapping and grouped review](screenshots/08-import-review.png)
-![Unsupported rows in one expandable section](screenshots/09-unsupported-rows.png)
-![Confirm new courses and changes to existing courses](screenshots/10-import-confirmation.png)
-![Hebrew review, binary Passed, and summer displayed as קיץ](screenshots/11-hebrew-review.png)
+![Complete year mapping and grouped review](screenshots/07-import-review.png)
+![Unsupported rows expanded within the complete import screen](screenshots/08-unsupported-rows.png)
+![Confirmation showing changes to existing courses](screenshots/09-import-confirmation.png)
 
 </details>
