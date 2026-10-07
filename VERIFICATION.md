@@ -4,7 +4,7 @@ Verified on Windows x64 with .NET SDK 10.0.401.
 
 - Solution build: zero warnings or errors.
 - 131 xUnit tests: original calculation/storage coverage plus deterministic parsing, supported delimiters and headers, Hebrew/English destinations, preserved invalid input, size limits, manual mapping, normalized output, bulk defaults/overrides, exclusion, duplicates, atomic import, and a live HTTP test proving parse/preview are read-only and import requires confirmation.
-- 11 browser-logic tests: exact decimal math, exclusions, component weighting, simulated propagation/isolation, distribution boundaries.
+- 12 browser-logic tests: exact decimal math, exclusions, component weighting, simulated propagation/isolation, distribution boundaries.
 - Self-contained Windows x64 publish includes the runtime, SQLite native library, and all browser assets.
 - Browser checks: degree creation, direct course editing, component course creation, warnings for excess weights, vertical semesters, simulation controls, immediate exact component entry, restoration after simulation, Hebrew RTL, English LTR, and a 390-pixel mobile layout.
 - Live release checks: automatic loopback-port selection, persisted real component grades after restart, backup validation/restoration, malformed backup rejection, static assets, and a windowless executable launch. Browser launch completed without recording an error.
@@ -56,3 +56,5 @@ Current UX/lifecycle/integrity verification (2026-10-07):
 - Exact two-tab UI scenario verified: first tab saves Creative Coding, stale second-tab Annual Portfolio save is blocked; reload shows the first edit; reapplying the second edit preserves both. Localized conflict/reload dialogs were verified in English and Hebrew.
 - Materially changed gallery images were replaced, with additional yearly, semester-menu, simulation-highlight and conflict captures. All README captures remain English-only and fictional; no personal database or grades are included.
 - Final release verification: complete runtime and assets match the final staged publish, and the ZIP was refreshed. The live legacy database migrated without changing academic data (compared structurally, excluding revision metadata and newly defaulted empty yearly-course lists). No personal data was displayed or staged.
+
+Blank simulation shortcut: +5 initializes a blank numeric course/component grade to 100. Other signed buttons remain disabled while blank; existing values retain normal bounded increments. Browser checks in English/Hebrew verified 100, Reset restoring blank/zero changes, and ending simulation leaving the saved grade blank. The twelfth browser-logic regression also verifies components and original-data isolation. A fictional English-only shortcut screenshot and README explanation were added.

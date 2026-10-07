@@ -13,10 +13,10 @@ const context = vm.createContext({
 });
 vm.runInContext(
   source.slice(0, source.indexOf("function toast")) +
-    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses};",
+    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue};",
   context,
 );
-const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses } = context.logic;
+const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue } = context.logic;
 const course = (credits, grade) => ({
   credits,
   grade,
@@ -132,4 +132,26 @@ test("component changes highlight parent even when final rounded grade is unchan
   current.components[0].grade = 70.1;
   assert.equal(final(current), final(real));
   assert.equal(simulationChanged(current,real), true);
+});
+
+test("only +5 initializes a blank simulation grade to 100 and reset restores blank", () => {
+  const original = {...course(3, null), id:"blank"}, simulated = clone(original);
+  for (const delta of [1,-1,-5]) {
+    assert.equal(simulationBumpEnabled(null,delta), false);
+    assert.equal(simulationBumpValue(null,delta), null);
+  }
+  assert.equal(simulationBumpEnabled(null,5),true);
+  simulated.grade = simulationBumpValue(simulated.grade,5);
+  assert.equal(simulated.grade,100);
+  assert.equal(simulationChanged(simulated,original),true);
+  assert.equal(original.grade,null);
+  assert.equal(simulationBumpValue(80,5),85);
+  assert.equal(simulationBumpValue(100,5),100);
+  assert.equal(simulationBumpValue(2,-5),0);
+  simulated.grade = original.grade;
+  assert.equal(simulationChanged(simulated,original),false);
+  assert.equal(simulationBumpEnabled(simulated.grade,5),true);
+  const parts = component([100,null]);
+  parts.components[0].grade = simulationBumpValue(parts.components[0].grade,5);
+  assert.equal(final(parts),100);
 });

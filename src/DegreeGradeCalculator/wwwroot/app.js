@@ -246,6 +246,8 @@ function availableSemesters(year, current = null) {
   const taken = new Set(year.semesters.filter(semester => semester.id !== current?.id).map(semester => semester.name.trim().toLowerCase()));
   return [...new Set(["A", "B", "Summer", ...(current && !["A", "B", "Summer"].includes(current.name) ? [current.name] : [])])].filter(name => !taken.has(name.trim().toLowerCase()));
 }
+const simulationBumpEnabled = (grade, delta) => grade !== null || delta === 5;
+const simulationBumpValue = (grade, delta) => grade === null ? (delta === 5 ? 100 : null) : Math.max(0, Math.min(100, grade + delta));
 function simulationChanged(current, original) {
   if (!original) return true;
   return current.grade !== original.grade ||
@@ -374,7 +376,7 @@ function semesterManagementMenu(sem) {
 }
 
 function simControls(c, g, i) {
-  return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" dir="ltr" min="0" max="100" step="any" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `dir="ltr" data-delta="${n}" ${g === null ? "disabled" : ""}`)).join("")}${button("reset", t("reset"))}</div>`;
+  return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" dir="ltr" min="0" max="100" step="any" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `dir="ltr" data-delta="${n}" ${simulationBumpEnabled(g, n) ? "" : "disabled"}`)).join("")}${button("reset", t("reset"))}</div>`;
 }
 function degreeOptions(d) {
   return `<details class="course-menu degree-menu"><summary aria-label="${esc(t("degreeOptions") + ": " + d.name)}" title="${esc(t("degreeOptions"))}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary><div class="course-menu-actions">${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("deleteDegree", t("delete"), `class="danger" data-id="${d.id}"`)}</div></details>`;
@@ -630,7 +632,7 @@ function updateSimulationView() {
     card.querySelector(".course-grade").innerHTML = `<bdi>${c.passed != null ? t(c.passed ? "passed" : "failed") : final(c) ?? "—"}</bdi>`;
     card.querySelectorAll(".quick").forEach(box => {
       const i = Number(box.dataset.component), grade = i < 0 ? c.grade : c.components[i].grade;
-      box.querySelectorAll("[data-delta]").forEach(button => button.disabled = grade === null);
+      box.querySelectorAll("[data-delta]").forEach(button => button.disabled = !simulationBumpEnabled(grade, Number(button.dataset.delta)));
     });
   }
   for (const sem of [...y.semesters, ...(y.yearlyCourses?.length ? [{id: "yearly:" + y.id, courses:y.yearlyCourses, yearly:true}] : [])]) {
@@ -790,7 +792,8 @@ $("#app").addEventListener("click", async (e) => {
           f = locate(simulation, box.dataset.course),
           i = Number(box.dataset.component),
           g = i < 0 ? f.c.grade : f.c.components[i].grade;
-        applySim(b, "set", g + Number(b.dataset.delta));
+        const delta = Number(b.dataset.delta);
+        if (simulationBumpEnabled(g, delta)) applySim(b, "set", simulationBumpValue(g, delta));
         break;
       }
       case "reset":
