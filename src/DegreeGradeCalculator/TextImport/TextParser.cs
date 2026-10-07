@@ -12,6 +12,7 @@ public sealed class ParsedCourse
     public string Name { get; set; } = "";
     public decimal? Credits { get; set; }
     public decimal? Grade { get; set; }
+    public bool? Passed { get; set; }
     public int? Year { get; set; }
     public string? Semester { get; set; }
     public string OriginalLine { get; set; } = "";
@@ -118,7 +119,8 @@ public sealed partial class TextCourseParser : ITextCourseParser
             row.Year = Year(Get("year")); row.Semester = Semester(Get("semester"));
             if (string.IsNullOrWhiteSpace(row.Name) || row.Name.Length > 200) row.Warnings.Add("invalid-name");
             if (row.Credits is null or <= 0 or > 1000) row.Warnings.Add("invalid-credits");
-            if (Get("grade").Length > 0 && row.Grade is null or < 0 or > 100) row.Warnings.Add("invalid-grade");
+            row.Passed = BinaryStatus(Get("grade"));
+            if (Get("grade").Length > 0 && row.Passed is null && row.Grade is null or < 0 or > 100) row.Warnings.Add("invalid-grade");
             if (Get("year").Length > 0 && row.Year is null) row.Warnings.Add("unknown-year");
             if (Get("semester").Length > 0 && row.Semester is null) row.Warnings.Add("unknown-semester");
             if (header && cells.Count != first!.Count) row.Warnings.Add("column-count");
@@ -162,7 +164,7 @@ public sealed partial class TextCourseParser : ITextCourseParser
     private static ParsedCourse? Transcript(string line, int lineNumber, int? year)
     {
         const string number = @"[+-]?\d+(?:[.,]\d+)?";
-        const string status = @"טרם|השלים\s+חובותיו|No\s+grade|Completed";
+        const string status = @"טרם|השלים\s+חובותיו|No\s+grade|Completed|Failed|נכשל";
         const string kind = @"שיעור|סמינר\s*/\s*סדנ[אה]|סמינר|סדנ[אה]|Lecture|Seminar|Workshop";
         var match = Regex.Match(line.Trim(), $@"^(?<semester>[אבק])\s+(?<code>\d{{5,10}})\s+(?<name>.+?)\s+(?<kind>{kind})\s+(?<credits>{number})(?:\s+(?<extra>{number}))?\s+(?<grade>{number}|{status})\s*$", RegexOptions.IgnoreCase);
         if (!match.Success)
@@ -186,11 +188,13 @@ public sealed partial class TextCourseParser : ITextCourseParser
         if (row.Credits is null or <= 0 or > 1000) row.Warnings.Add("invalid-credits");
         var hasStatus = Regex.IsMatch(Get("grade"), $@"^(?:{status})$", RegexOptions.IgnoreCase);
         if (!hasStatus && row.Grade is null or < 0 or > 100) row.Warnings.Add("invalid-grade");
-        if (hasStatus) row.Warnings.Add("non-numeric-status");
+        row.Passed = BinaryStatus(Get("grade"));
+        if (hasStatus && row.Passed is null) row.Warnings.Add("non-numeric-status");
         if (row.Name.Length > 200) row.Warnings.Add("invalid-name");
         if (Get("extra").Length > 0 && Number(Get("extra")) != row.Credits) row.Warnings.Add("different-credit-values");
         return row;
     }
+    private static bool? BinaryStatus(string text) => Regex.IsMatch(text.Trim(), @"^(?:Completed|השלים\s+חובותיו)$", RegexOptions.IgnoreCase) ? true : Regex.IsMatch(text.Trim(), @"^(?:Failed|נכשל)$", RegexOptions.IgnoreCase) ? false : null;
     private static List<string>? Split(string line, char separator)
     {
         var cells = new List<string>(); var cell = new StringBuilder(); bool quoted = false;

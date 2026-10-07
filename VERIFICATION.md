@@ -3,8 +3,8 @@
 Verified on Windows x64 with .NET SDK 10.0.401.
 
 - Solution build: zero warnings or errors.
-- 108 xUnit tests: original calculation/storage coverage plus deterministic parsing, supported delimiters and headers, Hebrew/English destinations, preserved invalid input, size limits, manual mapping, normalized output, bulk defaults/overrides, exclusion, duplicates, atomic import, and a live HTTP test proving parse/preview are read-only and import requires confirmation.
-- 6 browser-logic tests: exact decimal math, exclusions, component weighting, simulated propagation/isolation, distribution boundaries.
+- 112 xUnit tests: original calculation/storage coverage plus deterministic parsing, supported delimiters and headers, Hebrew/English destinations, preserved invalid input, size limits, manual mapping, normalized output, bulk defaults/overrides, exclusion, duplicates, atomic import, and a live HTTP test proving parse/preview are read-only and import requires confirmation.
+- 7 browser-logic tests: exact decimal math, exclusions, component weighting, simulated propagation/isolation, distribution boundaries.
 - Self-contained Windows x64 publish includes the runtime, SQLite native library, and all browser assets.
 - Browser checks: degree creation, direct course editing, component course creation, warnings for excess weights, vertical semesters, simulation controls, immediate exact component entry, restoration after simulation, Hebrew RTL, English LTR, and a 390-pixel mobile layout.
 - Live release checks: automatic loopback-port selection, persisted real component grades after restart, backup validation/restoration, malformed backup rejection, static assets, and a windowless executable launch. Browser launch completed without recording an error.
@@ -17,3 +17,5 @@ Reference Android screenshots were not attached; the implementation follows the 
 Calendar-year mapping controls verified in the browser: 2024 → Year 2 and 2025 → Year 3 update the course cards and normalized output without saving.
 
 All eleven screenshots were recaptured using an isolated fictional Digital Arts demo. Example transcript course names and grades were replaced with invented data, and the import textarea has no placeholder.
+
+Binary-grade verification: Passed adds credits without changing numeric averages; backup preserves binary status. Browser import created missing Summer only after confirmation and preserved editable Pass/Fail grading. Preview and invalid imports create no structure.

@@ -26,7 +26,7 @@ Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the
 
 Repeated courses with exactly the same name use only the latest graded attempt within each summary (academic year, semester, then row order). A newer blank grade does not replace an earlier numeric grade. Its credits and grade distribution count once; all attempts remain visible.
 
-Weighted average = `sum(final grade × credits) / sum(graded course credits)`. Blank grades count toward course counts but not averages, graded credits, or distributions. There is no pass/fail threshold: 45 counts normally. Averages display two decimal places; empty averages display an em dash.
+Weighted average = `sum(final grade × credits) / sum(graded course credits)`. Blank grades count toward course counts but not averages, counted credits, or distributions. Binary Passed grades add credits without entering averages or distributions; binary Failed grades add no credits. There is no pass/fail threshold: 45 counts normally. Averages display two decimal places; empty averages display an em dash.
 
 Component grades are `sum(weight percentage × component grade / 100)`, rounded to the nearest whole number with halves rounded upward. That whole-number result enters all summaries. Every component needs a grade before a final grade exists. Weights below 100% are used as entered; weights above 100% show a warning and are **not normalized**. For example, 70% × 80 + 30% × 90 + 10% × 100 = 93. Input grades range from 0 to 100; bonus-weighted final grades can exceed 100.
 
@@ -44,9 +44,9 @@ Supported formats include pipes (`Creative Coding | 3 | 81`), CSV including quot
 
 Hebrew and English academic transcripts are also supported: `שנת לימודים 2030` / `ACADEMIC YEAR 2030`, course codes, א/ב/ק or Fall/Spring/Summer, optional repeated credits, and reversed English rows. Calendar-year sections and table year cells receive suggested degree-year destinations, preserving year gaps. Use the editable Academic year mapping controls to set, for example, 2030 → Year 2 and 2031 → Year 3 for all courses in those years. Explicit headings such as `2030 - first year` are recognized. Missing or ambiguous credits remain blank and require correction. The paste screen includes a collapsed supported-format guide.
 
-This is a conservative local heuristic parser, not arbitrary natural-language understanding. Uncertain values retain their original text and warnings; unparsed lines remain visible and can become manual review cards. An advanced column-mapping fallback appears when needed. Unknown destinations can use defaults; destination years and semesters must already exist. Likely duplicates in the same semester can be skipped or imported as additional courses, never overwritten. The read-only normalized preview can be copied. Limits: 50,000 characters and 1,000 non-empty lines per paste.
+This is a conservative local heuristic parser, not arbitrary natural-language understanding. Uncertain values retain their original text and warnings; unparsed lines remain visible and can become manual review cards. An advanced column-mapping fallback appears when needed. Unknown destinations can use defaults; missing years and standard semesters (A, B, Summer) are created only after confirmed import. Likely duplicates in the same semester can be skipped or imported as additional courses, never overwritten. The read-only normalized preview can be copied. Limits: 50,000 characters and 1,000 non-empty lines per paste.
 
-Transcript course types include lectures, seminars and workshops. Statuses "טרם", "השלים חובותיו", "No grade" and "Completed" produce blank numeric grades (excluded from averages), with the status preserved in the review source. Missing credits still require correction.
+Transcript course types include lectures, seminars and workshops. "Completed" and "השלים חובותיו" are imported as binary Passed grades: their credits count toward progress, while they stay out of numeric averages and grade distributions. "טרם" and "No grade" remain ungraded. Passed/Failed can also be selected in the course editor. Missing credits still require correction.
 
 ## Developers
 
@@ -89,5 +89,6 @@ Fresh captures from the current GradePilot release. All course names and grades 
 ![Editable review](screenshots/09-import-review.png)
 ![Confirmation](screenshots/10-import-confirmation.png)
 ![Hebrew review with summer displayed as קיץ](screenshots/11-hebrew-review.png)
+![Binary Passed import and correctly detected destinations](screenshots/12-binary-grade-review.png)
 
 </details>

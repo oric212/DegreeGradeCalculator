@@ -14,7 +14,7 @@ Object.assign(words.en, {
   clearText: "Clear",
   reviewTitle: "Review courses",
   reviewHelp:
-    "Edit any field. Empty destinations use the defaults above. Parsing has not saved any courses.",
+    "Edit any field. Empty destinations use the defaults above. Missing years and standard semesters will be created only after confirmation. Parsing has not saved any courses.",
   targetDegree: "Target degree",
   defaultYear: "Default year",
   calendarMapping: "Academic year mapping",
@@ -95,7 +95,7 @@ Object.assign(words.he, {
   clearText: "ניקוי",
   reviewTitle: "בדיקת הקורסים",
   reviewHelp:
-    "ניתן לערוך כל שדה. יעד ריק משתמש בברירת המחדל שלמעלה. הפענוח עדיין לא שמר קורסים.",
+    "ניתן לערוך כל שדה. יעד ריק משתמש בברירת המחדל שלמעלה. שנים וסמסטרים רגילים חסרים ייווצרו רק לאחר אישור. הפענוח עדיין לא שמר קורסים.",
   targetDegree: "תואר יעד",
   defaultYear: "שנת ברירת מחדל",
   calendarMapping: "מיפוי שנות לימודים",
@@ -215,7 +215,7 @@ function calendarMappingPanel() {
   }).join("")}</div></details>`;
 }
 function reviewCard(row, i) {
-  return `<article class="card import-row ${row.warnings.length ? "uncertain" : ""}" data-row="${i}"><div class="import-row-head"><h3 data-row-title>${esc(row.name || t("courses"))}</h3><label class="include-row"><input type="checkbox" data-field="included" ${row.included ? "checked" : ""}>${t("includeRow")}</label></div><div class="import-fields">${label(t("name"), `<input data-field="name" value="${esc(row.name)}" required maxlength="200">`)}${label(t("creditPoints"), `<input data-field="credits" type="number" min="0.01" max="1000" step="any" required value="${esc(row.credits ?? "")}">`)}${label(t("grade"), `<input data-field="grade" type="number" min="0" max="100" step="any" value="${esc(row.grade ?? "")}">`)}${label(t("year"), `<select data-field="year">${yearOptions(row.year, true)}</select>`)}${label(t("semester"), `<select data-field="semester">${semesterOptions(row.year, row.semester, true)}</select>`)}</div><div class="row-validation" aria-live="polite"></div>${row.invalidGradeUnresolved ? button("acceptBlankGrade", t("acceptBlankGrade"), `data-row-index="${i}"`) : ""}${row.warnings.map((w) => `<p class="import-note" data-warning="${w}">${esc(t(w))}${["invalid-credits", "invalid-grade", "unknown-year", "unknown-semester"].includes(w) ? ` <span dir="auto">(${esc(row.rawValues?.[{ "invalid-credits": "credits", "invalid-grade": "grade", "unknown-year": "year", "unknown-semester": "semester" }[w]] || "")})</span>` : ""}</p>`).join("")}<details><summary>${t("sourceLine")}</summary><pre>${esc(row.originalLine)}</pre></details></article>`;
+  return `<article class="card import-row ${row.warnings.length ? "uncertain" : ""}" data-row="${i}"><div class="import-row-head"><h3 data-row-title>${esc(row.name || t("courses"))}</h3><label class="include-row"><input type="checkbox" data-field="included" ${row.included ? "checked" : ""}>${t("includeRow")}</label></div><div class="import-fields">${label(t("name"), `<input data-field="name" value="${esc(row.name)}" required maxlength="200">`)}${label(t("creditPoints"), `<input data-field="credits" type="number" min="0.01" max="1000" step="any" required value="${esc(row.credits ?? "")}">`)}${row.passed != null ? label(t("binary"), `<select data-field="passed"><option value="true" ${row.passed ? "selected" : ""}>${t("passed")}</option><option value="false" ${!row.passed ? "selected" : ""}>${t("failed")}</option><option value="numeric">${t("direct")}</option></select>`) : label(t("grade"), `<input data-field="grade" type="number" min="0" max="100" step="any" value="${esc(row.grade ?? "")}">`)}${label(t("year"), `<select data-field="year">${yearOptions(row.year, true)}</select>`)}${label(t("semester"), `<select data-field="semester">${semesterOptions(row.year, row.semester, true)}</select>`)}</div><div class="row-validation" aria-live="polite"></div>${row.invalidGradeUnresolved ? button("acceptBlankGrade", t("acceptBlankGrade"), `data-row-index="${i}"`) : ""}${row.warnings.map((w) => `<p class="import-note" data-warning="${w}">${esc(t(w))}${["invalid-credits", "invalid-grade", "unknown-year", "unknown-semester"].includes(w) ? ` <span dir="auto">(${esc(row.rawValues?.[{ "invalid-credits": "credits", "invalid-grade": "grade", "unknown-year": "year", "unknown-semester": "semester" }[w]] || "")})</span>` : ""}</p>`).join("")}<details><summary>${t("sourceLine")}</summary><pre>${esc(row.originalLine)}</pre></details></article>`;
 }
 function importRequest(confirmed = false) {
   return {
@@ -226,6 +226,7 @@ function importRequest(confirmed = false) {
       name: r.name,
       credits: r.credits,
       grade: r.grade,
+      passed: r.passed ?? null,
       year: r.year,
       semester: r.semester,
       included: r.included,
@@ -267,7 +268,7 @@ function validateReview() {
         const y =
           importDegree().years[(row.year || importDraft.defaultYear) - 1];
         if (
-          !y?.semesters.some(
+          !(["A", "B", "Summer"].includes(row.semester || importDraft.defaultSemester) && (row.year || importDraft.defaultYear) >= 1 && (row.year || importDraft.defaultYear) <= 100) && !y?.semesters.some(
             (s) => s.name === (row.semester || importDraft.defaultSemester),
           )
         )
@@ -323,6 +324,7 @@ $("#app").addEventListener("input", (event) => {
   if (card && el.dataset.field) {
     const row = importDraft.rows[Number(card.dataset.row)],
       field = el.dataset.field;
+    if (field === "passed") { row.passed = el.value === "numeric" ? null : el.value === "true"; row.grade = null; renderTextImport(); return; }
     row[field] =
       field === "included"
         ? el.checked

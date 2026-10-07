@@ -76,3 +76,11 @@ test("exact-name repeats count only the latest graded attempt", () => {
   assert.equal(s.count, 4);
   assert.equal(s.bins.reduce((a,b)=>a+b,0),2);
 });
+
+test("binary passes count credits without entering numeric averages", () => {
+  const rows=[{...course(4,80),name:"Studio"},{...course(2,null),name:"Activity",passed:true},{...course(3,null),name:"Pending"},{...course(5,null),name:"Failed",passed:false}];
+  const s=summary(rows);
+  assert.equal(avg(s.average),"80.00"); assert.equal(s.credits,6);
+  assert.equal(s.bins.reduce((a,b)=>a+b,0),1);
+  assert.equal(final(rows[1]),null);
+});

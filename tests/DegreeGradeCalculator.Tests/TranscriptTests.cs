@@ -12,7 +12,7 @@ public class TranscriptTests
         Assert.Equal("Demo Community Activity", row.Name);
         Assert.Equal(2, row.Credits); Assert.Null(row.Grade);
         Assert.Equal("Completed", row.RawValues["grade"]);
-        Assert.Contains("non-numeric-status", row.Warnings);
+        Assert.True(row.Passed);
         Assert.DoesNotContain("invalid-grade", row.Warnings);
     }
     [Theory]
@@ -30,7 +30,8 @@ public class TranscriptTests
         Assert.Empty(result.UnparsedLines); var row = Assert.Single(result.Courses);
         Assert.Equal(name, row.Name); Assert.Equal(credits, row.Credits); Assert.Equal((decimal?)grade, row.Grade);
         Assert.DoesNotContain("invalid-grade", row.Warnings);
-        if (grade is null) Assert.Contains("non-numeric-status", row.Warnings);
+        if (line.Contains("השלים חובותיו")) Assert.True(row.Passed);
+        else if (grade is null) Assert.Contains("non-numeric-status", row.Warnings);
     }
     [Theory]
     [InlineData("Fall 131111 Advanced Creative Studies Lecture No grade", "Advanced Creative Studies")]

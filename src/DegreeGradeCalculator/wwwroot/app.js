@@ -27,7 +27,7 @@ const words = {
     open: "Open degree",
     average: "Degree average",
     creditPoints: "Credit points",
-    credits: "Graded credits",
+    credits: "Counted credits", binary: "Pass / fail", passed: "Passed", failed: "Failed",
     courses: "Courses",
     courseOptions: "Course options",
     required: "Required credits",
@@ -89,7 +89,7 @@ const words = {
     open: "פתיחת תואר",
     average: "ממוצע תואר",
     creditPoints: "נק״ז",
-    credits: "נק״ז עם ציון",
+    credits: "נק״ז לחישוב", binary: "עובר / נכשל", passed: "עבר", failed: "נכשל",
     courses: "קורסים",
     courseOptions: "אפשרויות קורס",
     required: "נק״ז נדרשות",
@@ -163,6 +163,7 @@ const gcd = (a, b) => (b === 0n ? a : gcd(b, a % b)),
   divide = (a, b) => [a[0] * b[1], a[1] * b[0]],
   exactSum = (items) => items.reduce(plus, [0n, 1n]);
 const final = (c) => {
+  if (c.passed != null) return null;
   if (!c.usesComponents) return c.grade;
   if (!c.components.length || c.components.some((p) => p.grade === null))
     return null;
@@ -178,8 +179,10 @@ const courses = (d) =>
   d.years.flatMap((y) => y.semesters.flatMap((s) => s.courses));
 function summary(cs) {
   const latest = new Map();
-  cs.filter((c) => final(c) !== null).forEach((c) => latest.set(c.name ?? c, c));
-  const graded = [...latest.values()],
+  cs.filter((c) => final(c) !== null || c.passed === true).forEach((c) => latest.set(c.name ?? c, c));
+  const completed = [...latest.values()],
+    counted = exactSum(completed.map(c => fraction(c.credits))),
+    graded = completed.filter(c => final(c) !== null),
     creditFraction = exactSum(graded.map((c) => fraction(c.credits))),
     credits = Number(creditFraction[0]) / Number(creditFraction[1]),
     bins = [0, 0, 0, 0, 0];
@@ -196,7 +199,7 @@ function summary(cs) {
           creditFraction,
         )
       : null,
-    credits,
+    credits: Number(counted[0]) / Number(counted[1]),
     count: cs.length,
     bins,
   };
@@ -304,7 +307,7 @@ function render() {
   root.innerHTML = `<div class="heading"><div>${button("back", (data.language === "he" ? "› " : "‹ ") + t("back"))}<h1>${esc(d.name)}</h1></div><div class="actions">${simulation ? button("end", t("end"), 'class="primary"') : button("simulate", t("simulate"), 'class="primary"')}${button("report", t("report"))}${!simulation ? button("textImport", t("textImport")) : ""}</div></div>${simulation ? `<section class="simulation"><h2>${t("simulation")}</h2><div class="metrics">${metric(t("newAverage"), avg(s.average))}${metric(t("current"), avg(summary(courses(real)).average))}</div>${distribution(s)}</section>` : `<section class="card"><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div>${distribution(s)}</section>`}<div class="year-nav">${button("prev", data.language === "he" ? "→" : "←", yearIndex === 0 ? "disabled" : "")}<h2>${yearName(yearIndex)}</h2>${button("next", data.language === "he" ? "←" : "→", yearIndex === d.years.length - 1 ? "disabled" : "")}</div><section class="card year-summary"><h3>${yearName(yearIndex)}</h3><div class="metrics">${metric(t("average"), avg(ys.average))}${metric(t("credits"), ys.credits)}${metric(t("courses"), ys.count)}</div></section>${!simulation ? `<div class="actions sub-actions">${button("addYear", t("addYear"))}${button("removeYear", t("removeYear"), d.years.length === 1 ? "disabled" : "")}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("addSemester", t("addSemester"))}</div>` : ""}${y.semesters
     .map((sem) => {
       let ss = summary(sem.courses);
-      return `<section class="semester"><div class="semester-head"><div><h2>${esc(semName(sem))}</h2><p>${ss.credits} ${t("credits")} · ${t("average")} ${avg(ss.average)}</p></div>${!simulation ? `<div class="actions">${button("addCourse", t("addCourse"), `data-sem="${sem.id}"`)}${button("editSemester", t("edit"), `data-sem="${sem.id}"`)}${button("deleteSemester", t("delete"), `data-sem="${sem.id}"`)}</div>` : ""}</div>${!sem.courses.length ? `<p class="muted">${t("none")}</p>` : sem.courses.map((c) => `<article class="course ${simulation ? "sim-course" : ""}"><div class="sim-fields"><h3>${esc(c.name)}</h3><small>${c.credits} ${t("creditPoints")}${c.usesComponents && final(c) === null ? " · " + t("incomplete") : ""}</small>${simulation ? (c.usesComponents ? c.components.map((p, i) => `<div class="sim-component"><small>${esc(p.name)} · ${p.weight}%</small>${simControls(c, p.grade, i)}</div>`).join("") : simControls(c, c.grade, -1)) : ""}</div><div class="course-end"><span class="course-grade">${final(c) ?? "—"}</span>${!simulation ? courseOptions(c) : ""}</div></article>`).join("")}</section>`;
+      return `<section class="semester"><div class="semester-head"><div><h2>${esc(semName(sem))}</h2><p>${ss.credits} ${t("credits")} · ${t("average")} ${avg(ss.average)}</p></div>${!simulation ? `<div class="actions">${button("addCourse", t("addCourse"), `data-sem="${sem.id}"`)}${button("editSemester", t("edit"), `data-sem="${sem.id}"`)}${button("deleteSemester", t("delete"), `data-sem="${sem.id}"`)}</div>` : ""}</div>${!sem.courses.length ? `<p class="muted">${t("none")}</p>` : sem.courses.map((c) => `<article class="course ${simulation ? "sim-course" : ""}"><div class="sim-fields"><h3>${esc(c.name)}</h3><small>${c.credits} ${t("creditPoints")}${c.usesComponents && final(c) === null ? " · " + t("incomplete") : ""}</small>${simulation && c.passed == null ? (c.usesComponents ? c.components.map((p, i) => `<div class="sim-component"><small>${esc(p.name)} · ${p.weight}%</small>${simControls(c, p.grade, i)}</div>`).join("") : simControls(c, c.grade, -1)) : ""}</div><div class="course-end"><span class="course-grade">${c.passed != null ? t(c.passed ? "passed" : "failed") : final(c) ?? "—"}</span>${!simulation ? courseOptions(c) : ""}</div></article>`).join("")}</section>`;
     })
     .join("")}`;
 }
@@ -430,9 +433,9 @@ function courseForm(id, semId) {
       `<div class="form-row">${label(t("creditPoints"), input("credits", c.credits, 'type="number" min="0.01" max="1000" step="any" required'))}${label(t("semester"), `<select name="semester">${options}</select>`)}</div>` +
       label(
         t("mode"),
-        `<select id="mode"><option value="direct">${t("direct")}</option><option value="components" ${c.usesComponents ? "selected" : ""}>${t("components")}</option></select>`,
+        `<select id="mode"><option value="direct">${t("direct")}</option><option value="binary" ${c.passed != null ? "selected" : ""}>${t("binary")}</option><option value="components" ${c.usesComponents ? "selected" : ""}>${t("components")}</option></select>`,
       ) +
-      `<div id="direct">${label(t("grade"), input("grade", c.grade, 'type="number" min="0" max="100" step="any"'))}</div><div id="componentEditor"></div>`,
+      `<div id="direct">${label(t("grade"), input("grade", c.grade, 'type="number" min="0" max="100" step="any"'))}</div><div id="binaryGrade">${label(t("grade"), `<select name="passed"><option value="true" ${c.passed !== false ? "selected" : ""}>${t("passed")}</option><option value="false" ${c.passed === false ? "selected" : ""}>${t("failed")}</option></select>`)}</div><div id="componentEditor"></div>`,
     async (f) => {
       let usesComponents = $("#mode").value === "components";
       let components = [...document.querySelectorAll(".component-row")].map(
@@ -451,7 +454,8 @@ function courseForm(id, semId) {
           name: f.get("name").trim(),
           credits: Number(f.get("credits")),
           usesComponents,
-          grade: usesComponents
+          passed: $("#mode").value === "binary" ? f.get("passed") === "true" : null,
+          grade: usesComponents || $("#mode").value === "binary"
             ? null
             : f.get("grade") === ""
               ? null
@@ -483,8 +487,9 @@ function courseForm(id, semId) {
   }
   function draw() {
     let component = $("#mode").value === "components";
-    $("#direct").hidden = component;
-    $("#direct input").disabled = component;
+    $("#direct").hidden = $("#mode").value !== "direct";
+    $("#binaryGrade").hidden = $("#mode").value !== "binary";
+    $("#direct input").disabled = $("#mode").value !== "direct";
     $("#componentEditor").hidden = !component;
     $("#componentEditor").innerHTML =
       ps

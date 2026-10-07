@@ -32,6 +32,7 @@ public sealed class Course
     [JsonRequired] public string Name { get; set; } = "";
     [JsonRequired] public decimal Credits { get; set; }
     [JsonRequired] public decimal? Grade { get; set; }
+    public bool? Passed { get; set; }
     [JsonRequired] public bool UsesComponents { get; set; }
     [JsonRequired] public List<Component> Components { get; set; } = [];
 }
@@ -44,13 +45,14 @@ public sealed class Component
 public record Summary(decimal? Average, decimal Credits, int Courses, int[] Distribution);
 public static class Calculation
 {
-    public static decimal? Final(Course c) => !c.UsesComponents ? c.Grade : c.Components.Count == 0 || c.Components.Any(x => x.Grade is null) ? null : decimal.Round(c.Components.Sum(x => x.Weight * x.Grade!.Value / 100m), 0, MidpointRounding.AwayFromZero);
+    public static decimal? Final(Course c) => c.Passed.HasValue ? null : !c.UsesComponents ? c.Grade : c.Components.Count == 0 || c.Components.Any(x => x.Grade is null) ? null : decimal.Round(c.Components.Sum(x => x.Weight * x.Grade!.Value / 100m), 0, MidpointRounding.AwayFromZero);
     public static Summary Summarize(IEnumerable<Course> source)
     {
-        var all = source.ToList(); var graded = all.Where(c => Final(c) is not null)
-            .GroupBy(c => c.Name, StringComparer.Ordinal).Select(g => g.Last()).ToList(); var credits = graded.Sum(c => c.Credits);
+        var all = source.ToList(); var completed = all.Where(c => Final(c) is not null || c.Passed == true)
+            .GroupBy(c => c.Name, StringComparer.Ordinal).Select(g => g.Last()).ToList(); var credits = completed.Sum(c => c.Credits);
+        var graded = completed.Where(c => Final(c) is not null).ToList(); var numericCredits = graded.Sum(c => c.Credits);
         var bins = new int[5]; foreach (var c in graded) { var g = Final(c)!.Value; bins[g < 60 ? 0 : g < 70 ? 1 : g < 80 ? 2 : g < 90 ? 3 : 4]++; }
-        return new(credits == 0 ? null : graded.Sum(c => Final(c)!.Value * c.Credits) / credits, credits, all.Count, bins);
+        return new(numericCredits == 0 ? null : graded.Sum(c => Final(c)!.Value * c.Credits) / numericCredits, credits, all.Count, bins);
     }
     public static IEnumerable<Course> Courses(Degree d) => d.Years.SelectMany(y => y.Semesters).SelectMany(s => s.Courses);
 }
@@ -75,7 +77,7 @@ public static class Validation
                     if (s is null) throw new ArgumentException("Semester cannot be null."); Id(s.Id); Name(s.Name); if (s.Courses is null || s.Courses.Count > 1000) throw new ArgumentException("Invalid courses.");
                     foreach (var c in s.Courses)
                     {
-                        if (c is null) throw new ArgumentException("Course cannot be null."); Id(c.Id); Name(c.Name); if (c.Credits is <= 0 or > 1000 || c.Components is null || c.Components.Count > 100) throw new ArgumentException("Invalid course credits or components."); Grade(c.Grade);
+                        if (c is null) throw new ArgumentException("Course cannot be null."); Id(c.Id); Name(c.Name); if (c.Credits is <= 0 or > 1000 || c.Components is null || c.Components.Count > 100) throw new ArgumentException("Invalid course credits or components."); Grade(c.Grade); if (c.Passed.HasValue && (c.Grade is not null || c.UsesComponents || c.Components.Count > 0)) throw new ArgumentException("Binary courses cannot have numeric grades or components.");
                         if (c.UsesComponents && (c.Grade is not null || c.Components.Count == 0)) throw new ArgumentException("Component courses require components and no direct override.");
                         foreach (var p in c.Components) { if (p is null) throw new ArgumentException("Component cannot be null."); Name(p.Name); if (p.Weight is <= 0 or > 1000) throw new ArgumentException("Weights must be positive and at most 1000%."); Grade(p.Grade); }
                     }
