@@ -102,7 +102,7 @@ const words = {
     back: "כל התארים",
     year: "שנה",
     semester: "סמסטר",
-    summer: "סמסטר קיץ",
+    summer: "קיץ",
     addYear: "הוספת שנה",
     removeYear: "הסרת השנה האחרונה",
     addSemester: "הוספת סמסטר",

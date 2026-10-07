@@ -155,7 +155,7 @@ Object.assign(words.he, {
     "טקסט נוסף נשמר בשורה המקורית. יש לבדוק את מיפוי העמודות במידת הצורך.",
   "column-count": "מספר התאים שונה ממספר העמודות בכותרת.",
   "missing-degree": "יש לבחור תואר קיים.",
-  "invalid-destination": "השנה והסמסטר שנבחרו חייבים להתקיים בתואר הזה.",
+  "invalid-destination": "בחרו שנה וסמסטר.",
   "confirmation-required": "יש לבדוק ולאשר לפני הייבוא.",
   "invalid-import": "בקשת הייבוא אינה תקינה.",
 });
@@ -189,12 +189,12 @@ const yearOptions = (value, allowDefault) =>
     )
     .join(
       "",
-    )}${value && value > importDegree().years.length ? `<option value="${value}" selected>${yearName(value - 1)} · ${t("invalid-destination")}</option>` : ""}`;
+    )}${value && value > importDegree().years.length ? `<option value="${value}" selected>${yearName(value - 1)}</option>` : ""}`;
 function semesterOptions(year, value, allowDefault) {
   const semesters =
     importDegree().years[(year || importDraft.defaultYear) - 1]?.semesters ||
     [];
-  return `${allowDefault ? `<option value="">${t("useDefault")}</option>` : ""}${semesters.map((s) => `<option value="${esc(s.name)}" ${value === s.name ? "selected" : ""}>${esc(semName(s))}</option>`).join("")}${value && !semesters.some((s) => s.name === value) ? `<option value="${esc(value)}" selected>${esc(value)} · ${t("invalid-destination")}</option>` : ""}`;
+  return `${allowDefault ? `<option value="">${t("useDefault")}</option>` : ""}${semesters.map((s) => `<option value="${esc(s.name)}" ${value === s.name ? "selected" : ""}>${esc(semName(s))}</option>`).join("")}${value && !semesters.some((s) => s.name === value) ? `<option value="${esc(value)}" selected>${esc(semName({ name: value }))}</option>` : ""}`;
 }
 function renderTextImport() {
   const draft = importDraft;
