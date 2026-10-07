@@ -570,3 +570,6 @@ header nav button {
 .distribution span + span { box-shadow: inset 1px 0 0 #ffffffb3; }
 .simulation .legend { color: #e1ebfb; }
 .legend .dot { border: 1px solid #7893b140; }
+.degree-card-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+.degree-card-head h2 { margin: 0; overflow-wrap: anywhere; }
+.degree-menu { flex-shrink: 0; }

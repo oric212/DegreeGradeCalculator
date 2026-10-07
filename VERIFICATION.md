@@ -37,3 +37,5 @@ Import grade-mode toggle verified in the browser: Passed to numeric 86 to Failed
 Average labels verified in English and Hebrew: degree summary uses Degree average / ממוצע תואר; year summary uses Year average / ממוצע שנתי; semester headers use Semester average / ממוצע סמסטר. Simulation uses the same scope labels. Affected English screenshots recaptured.
 
 Grade distribution uses five widely spaced blue shades, from pale blue below 60 to navy at 90+, with thin segment separators and matching legend dots. Simulation legend text has improved contrast. Browser verification displayed all five categories using fictional courses. Missing-destination controls are absent for fully matched courses and reappear when a course destination is cleared. All affected English screenshots refreshed.
+
+Degree deletion is hidden in a three-dot menu and requires a named confirmation with Cancel focused first. Browser verification confirmed cancellation preserves the degree and logo navigation returns home from a degree and empty importer. New English menu and confirmation captures use fictional data.

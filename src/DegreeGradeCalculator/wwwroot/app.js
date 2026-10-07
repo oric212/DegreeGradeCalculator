@@ -30,7 +30,7 @@ const words = {
     noGradedCourses: "Add grades to see the grade distribution.",
     credits: "Counted credits", binary: "Pass / fail", passed: "Passed", failed: "Failed",
     courses: "Courses",
-    courseOptions: "Course options",
+    courseOptions: "Course options", degreeOptions: "Degree options", deleteDegreeTitle: "Delete degree?", deleteDegreeHelp: "This permanently deletes this degree and all its courses. This cannot be undone.",
     required: "Required credits",
     edit: "Edit",
     delete: "Delete",
@@ -93,7 +93,7 @@ const words = {
     noGradedCourses: "התפלגות הציונים תופיע לאחר הוספת ציונים.",
     credits: "נק״ז לחישוב", binary: "עובר / נכשל", passed: "עבר", failed: "נכשל",
     courses: "קורסים",
-    courseOptions: "אפשרויות קורס",
+    courseOptions: "אפשרויות קורס", degreeOptions: "אפשרויות תואר", deleteDegreeTitle: "למחוק את התואר?", deleteDegreeHelp: "התואר וכל הקורסים שלו יימחקו לצמיתות. לא ניתן לבטל את המחיקה.",
     required: "נק״ז נדרשות",
     edit: "עריכה",
     delete: "מחיקה",
@@ -295,7 +295,7 @@ function render() {
             .map((d) => {
               let s = summary(courses(d)),
                 p = (s.credits / d.requiredCredits) * 100;
-              return `<article class="card degree-card"><h2>${esc(d.name)}</h2><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small class="progress-caption"><bdi>${p.toFixed(1)}%</bdi></small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("deleteDegree", t("delete"), `class="danger" data-id="${d.id}"`)}</div></article>`;
+              return `<article class="card degree-card"><div class="degree-card-head"><h2>${esc(d.name)}</h2>${degreeOptions(d)}</div><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small class="progress-caption"><bdi>${p.toFixed(1)}%</bdi></small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}</div></article>`;
             })
             .join("")}</div>`
     }`;
@@ -316,6 +316,9 @@ function render() {
 }
 function simControls(c, g, i) {
   return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" min="0" max="100" step="0.01" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `data-delta="${n}" ${g === null ? "disabled" : ""}`)).join("")}${button("reset", t("reset"))}</div>`;
+}
+function degreeOptions(d) {
+  return `<details class="course-menu degree-menu"><summary aria-label="${esc(t("degreeOptions") + ": " + d.name)}" title="${esc(t("degreeOptions"))}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary><div class="course-menu-actions">${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("deleteDegree", t("delete"), `class="danger" data-id="${d.id}"`)}</div></details>`;
 }
 function courseOptions(c) {
   return `<details class="course-menu"><summary aria-label="${esc(t("courseOptions") + ": " + c.name)}" title="${esc(t("courseOptions"))}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary><div class="course-menu-actions">${button("editCourse", t("edit"), `data-id="${c.id}"`)}${button("deleteCourse", t("delete"), `class="danger" data-id="${c.id}"`)}</div></details>`;
@@ -346,6 +349,7 @@ function dialog(title, html, onSave) {
   $("#fields").innerHTML = `<h2>${esc(title)}</h2>${html}`;
   $("#cancel").textContent = t("cancel");
   $("#save").textContent = t("save");
+  $("#save").className = "primary";
   $("#save").hidden = !onSave;
   $("#form").onsubmit = async (e) => {
     e.preventDefault();
@@ -565,6 +569,18 @@ $("#app").addEventListener("input", (e) => {
       .focus();
   }
 });
+$(".brand").addEventListener("click", (event) => {
+  event.preventDefault();
+  if (typeof importDraft !== "undefined" && importDraft) {
+    if ((importDraft.text || importDraft.rows.length) && !confirm(t("discardDraft"))) return;
+    importDraft = null;
+    previewSequence++;
+  }
+  selected = null;
+  simulation = null;
+  yearIndex = 0;
+  render();
+});
 $("#app").addEventListener("click", async (e) => {
   let b = e.target.closest("[data-action]");
   if (!b) return;
@@ -592,15 +608,17 @@ $("#app").addEventListener("click", async (e) => {
         simulation = null;
         render();
         break;
-      case "deleteDegree":
-        if (confirm(t("confirm")))
-          await change(
-            () =>
-              (data.degrees = data.degrees.filter(
-                (d) => d.id !== b.dataset.id,
-              )),
-          );
+      case "deleteDegree": {
+        const degree = data.degrees.find(d => d.id === b.dataset.id);
+        if (!degree) break;
+        dialog(t("deleteDegreeTitle"), `<h3>${esc(degree.name)}</h3><p>${esc(t("deleteDegreeHelp"))}</p>`, async () => {
+          await change(() => { data.degrees = data.degrees.filter(d => d.id !== degree.id); });
+        });
+        $("#save").textContent = t("delete");
+        $("#save").className = "danger";
+        $("#cancel").focus();
         break;
+      }
       case "prev":
         yearIndex--;
         render();

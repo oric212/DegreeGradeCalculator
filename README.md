@@ -15,7 +15,7 @@ Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the
 - Multiple degrees with required credits, nominal duration, and flexible academic years.
 - Horizontal year navigation with arrows or pointer/touch swipes; vertically stacked semesters. New years start with Semester A and B; add summer or custom semesters as needed.
 - Course dialogs with decimal credits, optional direct grades, or weighted components. Courses can move between semesters and years.
-- Course Edit/Delete actions are grouped in a compact three-dot menu.
+- Course and degree Edit/Delete actions are grouped in compact three-dot menus. Deleting a degree requires a separate confirmation naming the degree; Cancel is focused first. Clicking the logo returns to the dashboard.
 - Clearly labeled degree, year, and semester averages, graded-credit progress, reports, and five-category grade distribution with distinct light-to-dark blue shades and matching legend markers.
 - Temporary simulation with exact grade entry, ±1/±5, reset, and component-level controls in the normal degree layout.
 - Hebrew RTL and English LTR, with a persisted language choice.
@@ -87,5 +87,13 @@ Fresh English-only captures from the current Windows release. All names, transcr
 ![Complete year mapping and grouped review](screenshots/07-import-review.png)
 ![Unsupported rows expanded within the complete import screen](screenshots/08-unsupported-rows.png)
 ![Confirmation showing changes to existing courses](screenshots/09-import-confirmation.png)
+
+</details>
+
+<details>
+<summary>Degree menu and deletion confirmation</summary>
+
+![Degree menu](screenshots/10-degree-menu.png)
+![Named deletion confirmation](screenshots/11-delete-confirmation.png)
 
 </details>
