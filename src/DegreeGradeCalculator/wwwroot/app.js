@@ -27,6 +27,7 @@ const words = {
     open: "Open degree",
     average: "Degree average",
     creditPoints: "Credit points",
+    noGradedCourses: "Add grades to see the grade distribution.",
     credits: "Counted credits", binary: "Pass / fail", passed: "Passed", failed: "Failed",
     courses: "Courses",
     courseOptions: "Course options",
@@ -89,6 +90,7 @@ const words = {
     open: "פתיחת תואר",
     average: "ממוצע תואר",
     creditPoints: "נק״ז",
+    noGradedCourses: "התפלגות הציונים תופיע לאחר הוספת ציונים.",
     credits: "נק״ז לחישוב", binary: "עובר / נכשל", passed: "עבר", failed: "נכשל",
     courses: "קורסים",
     courseOptions: "אפשרויות קורס",
@@ -214,7 +216,8 @@ const avg = (n) => {
   colors = ["#9baac0", "#7793bd", "#5583c5", "#346cc0", "#174988"];
 function distribution(s) {
   let total = s.bins.reduce((a, b) => a + b, 0);
-  return `<div class="distribution" aria-label="${esc(t("grade"))}">${s.bins.map((n, i) => `<span style="width:${total ? (n / total) * 100 : 0}%;background:${colors[i]}"></span>`).join("")}</div><div class="legend">${s.bins.map((n, i) => `<span><i class="dot" style="background:${colors[i]}"></i>${[t("below"), "60–69", "70–79", "80–89", "90+"][i]} · ${n}</span>`).join("")}</div>`;
+  if (!total) return `<p class="distribution-empty">${esc(t("noGradedCourses"))}</p>`;
+  return `<div class="distribution" aria-label="${esc(t("grade"))}">${s.bins.map((n, i) => `<span style="width:${total ? (n / total) * 100 : 0}%;background:${colors[i]}"></span>`).join("")}</div><div class="legend">${s.bins.map((n, i) => `<span><i class="dot" style="background:${colors[i]}"></i><bdi>${[t("below"), "60–69", "70–79", "80–89", "90+"][i]}</bdi> · <bdi>${n}</bdi></span>`).join("")}</div>`;
 }
 const metric = (label, value) =>
   `<div class="metric"><small>${esc(label)}</small><strong>${value}</strong></div>`;
@@ -292,7 +295,7 @@ function render() {
             .map((d) => {
               let s = summary(courses(d)),
                 p = (s.credits / d.requiredCredits) * 100;
-              return `<article class="card degree-card"><h2>${esc(d.name)}</h2><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small>${p.toFixed(1)}%</small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("deleteDegree", t("delete"), `class="danger" data-id="${d.id}"`)}</div></article>`;
+              return `<article class="card degree-card"><h2>${esc(d.name)}</h2><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${s.credits} <span class="unit">/ ${d.requiredCredits}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small class="progress-caption"><bdi>${p.toFixed(1)}%</bdi></small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("deleteDegree", t("delete"), `class="danger" data-id="${d.id}"`)}</div></article>`;
             })
             .join("")}</div>`
     }`;
@@ -807,3 +810,4 @@ request("/api/data")
   .catch((e) => {
     $("#app").textContent = e.message;
   });
+

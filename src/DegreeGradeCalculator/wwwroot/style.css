@@ -550,3 +550,20 @@ header nav button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* Keep a single degree card compact, including the empty state. */
+.grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 520px));
+  justify-content: start;
+}
+.degree-card h2 { margin-bottom: 14px; }
+.degree-card .metrics { margin: 14px 0; }
+.progress-caption { display: block; color: #687d99; text-align: end; }
+.distribution-empty {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid #e7edf6;
+  font-size: 13px;
+  color: #7386a0;
+}
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+.legend .dot { margin-inline-end: 0; flex-shrink: 0; }

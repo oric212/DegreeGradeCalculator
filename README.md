@@ -96,3 +96,5 @@ Fresh captures from the current GradePilot release. All course names and grades 
 ![Identical reimport leaves saved courses unchanged](screenshots/16-reimport-unchanged.png)
 
 </details>
+
+![Compact empty degree summary](screenshots/17-empty-summary.png)

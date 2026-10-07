@@ -23,3 +23,5 @@ Binary-grade verification: Passed adds credits without changing numeric averages
 Grouped import review verified in Hebrew: moving a course from Year 1 / A to Year 2 / B updates the group headings, course counts, editable fields, and normalized preview. Binary Passed rows remain editable in their destination group.
 
 Repeat-import verification: identical rows are unchanged; updated grades and credits retain course IDs and require confirmation; other semesters stay separate; absent courses are preserved. Tests cover binary transitions, component preservation/replacement, legacy duplicate merging, stale confirmation rejection, atomic validation, and HTTP persistence. Browser checks confirmed one new / one updated / one unchanged course, followed by an identical no-op reimport. Two and 200 unsupported rows each produce one expandable review section, without repeated notifications. Screenshots 14–16 use fictional data.
+
+Empty summary verified in Hebrew using a fictional degree: compact dashboard card, one progress bar, explanatory distribution empty state, and isolated numeric labels.
