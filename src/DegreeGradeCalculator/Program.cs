@@ -24,6 +24,8 @@ using (instance)
         if (context.Request.Host.Host != "127.0.0.1" || (origin.Length > 0 && origin != $"http://{context.Request.Host}")) { context.Response.StatusCode = 403; return; }
         context.Response.Headers["X-Content-Type-Options"] = "nosniff";
         context.Response.Headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'";
+        // Release assets must refresh when the executable is reopened after an update.
+        if (!context.Request.Path.StartsWithSegments("/api")) context.Response.Headers.CacheControl = "no-store";
         await next();
     });
     app.UseDefaultFiles(); app.UseStaticFiles();

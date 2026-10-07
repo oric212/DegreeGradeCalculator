@@ -8,7 +8,7 @@ I built GradePilot out of frustration with the grade-calculation tools I tried. 
 
 ## Using the Windows release
 
-Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the entire release folder together: it contains the bundled .NET runtime, SQLite library, and browser assets. The executable starts a loopback-only server on an available port and opens your default browser without a terminal window. Opening it again brings up the existing instance. Use **Close app** to shut down; closing the browser alone leaves the server running.
+Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the entire release folder together: it contains the bundled .NET runtime, SQLite library, and browser assets. The executable starts a loopback-only server on an available port and opens your default browser without a terminal window. Opening it again brings up the existing instance. Use **Close app** to shut down; closing the browser alone leaves the server running. Before updating, close the app, replace the complete release folder, and reopen the executable. The current release prevents cached browser assets from hiding UI updates; reload any previously open tab.
 
 ## Features
 
@@ -66,12 +66,12 @@ Parser contract: `POST /api/import/parse-text` accepts `{ "text": "..." }` and a
 
 ## Screenshots
 
-Fresh captures from the current GradePilot release. All course names and grades are fictional demo data; no personal records are shown.
+Fresh captures from the current Windows release executable, including the compact empty-degree state, grouped imports, and before/after update confirmation. All course names and grades are fictional demo data.
 
-![Dashboard](screenshots/01-home.png)
+![Dashboard and empty degree](screenshots/01-home.png)
 
 <details>
-<summary>Degree, course options, components, and simulation</summary>
+<summary>Degree, course menu, component editor, and simulation</summary>
 
 ![Degree page](screenshots/02-degree.png)
 ![Course menu](screenshots/03-course-menu.png)
@@ -81,20 +81,13 @@ Fresh captures from the current GradePilot release. All course names and grades 
 </details>
 
 <details>
-<summary>Import grades: paste, map, review, and confirm</summary>
+<summary>Import: paste, supported formats, grouped review, and confirmation</summary>
 
 ![Empty paste field](screenshots/06-import-paste.png)
 ![Supported formats](screenshots/07-format-guide.png)
-![Adjustable year mapping](screenshots/08-year-mapping.png)
-![Editable review](screenshots/09-import-review.png)
-![Confirmation](screenshots/10-import-confirmation.png)
-![Hebrew review with summer displayed as קיץ](screenshots/11-hebrew-review.png)
-![Binary Passed import and correctly detected destinations](screenshots/12-binary-grade-review.png)
-![Import review grouped by year and semester](screenshots/13-grouped-import.png)
-![Unsupported rows in one expandable section](screenshots/14-unsupported-rows.png)
-![Confirm changes before updating saved courses](screenshots/15-reimport-confirmation.png)
-![Identical reimport leaves saved courses unchanged](screenshots/16-reimport-unchanged.png)
+![Year mapping and grouped review](screenshots/08-import-review.png)
+![Unsupported rows in one expandable section](screenshots/09-unsupported-rows.png)
+![Confirm new courses and changes to existing courses](screenshots/10-import-confirmation.png)
+![Hebrew review, binary Passed, and summer displayed as קיץ](screenshots/11-hebrew-review.png)
 
 </details>
-
-![Compact empty degree summary](screenshots/17-empty-summary.png)

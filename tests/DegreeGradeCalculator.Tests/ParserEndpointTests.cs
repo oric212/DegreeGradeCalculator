@@ -27,6 +27,12 @@ public class ParserEndpointTests
             for (var i = 0; i < 100 && !File.Exists(addressFile) && !process.HasExited; i++) await Task.Delay(100);
             Assert.True(File.Exists(addressFile), "Application failed to start");
             http.BaseAddress = new Uri(await File.ReadAllTextAsync(addressFile));
+            foreach (var asset in new[] { "/", "/app.js", "/style.css", "/text-import.js" })
+            {
+                var staticResponse = await http.GetAsync(asset);
+                staticResponse.EnsureSuccessStatusCode();
+                Assert.True(staticResponse.Headers.CacheControl?.NoStore);
+            }
             var before = await http.GetStringAsync("/api/data");
             foreach (var text in new[] { "Algorithms|4|82", "Math,2.5,45", "OS\t5\t68", "שם קורס|נק״ז|ציון\nאלגוריתמים|4|82", "Name|נקז|Grade\nDatabases|3.5|91" })
             {
