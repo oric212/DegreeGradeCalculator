@@ -62,6 +62,7 @@ Object.assign(words.en, {
   "unparsed-line": "This line could not be parsed safely.",
   "calendar-years-mapped": "Academic years are mapped chronologically to Year 1, Year 2, and so on. Review the destinations before importing.",
   "different-credit-values": "The transcript contains different credit values. Review the selected credits against the original line.",
+  "non-numeric-status": "This course has a status instead of a numeric grade. It will be imported with a blank grade and excluded from averages. See the original text.",
   "inferred-columns":
     "Columns were inferred as name, credits, grade, year, semester. Please review them.",
   "invalid-name": "Enter a course name of 1–200 characters.",
@@ -142,6 +143,7 @@ Object.assign(words.he, {
   "unparsed-line": "לא ניתן לפענח את השורה בבטחה.",
   "calendar-years-mapped": "שנות הלימודים ממופות לפי סדר כרונולוגי לשנה 1, שנה 2 וכן הלאה. יש לבדוק את היעדים לפני הייבוא.",
   "different-credit-values": "בשורה מופיעים ערכי נק״ז שונים. יש לבדוק את הנק״ז שנבחרו מול הטקסט המקורי.",
+  "non-numeric-status": "לקורס יש סטטוס במקום ציון מספרי. הוא ייובא עם ציון ריק ולא ייכלל בממוצע. ניתן לראות את הסטטוס בטקסט המקורי.",
   "inferred-columns":
     "העמודות זוהו כשם, נק״ז, ציון, שנה וסמסטר. יש לבדוק אותן.",
   "invalid-name": "יש להזין שם קורס באורך 1–200 תווים.",

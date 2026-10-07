@@ -162,15 +162,17 @@ public sealed partial class TextCourseParser : ITextCourseParser
     private static ParsedCourse? Transcript(string line, int lineNumber, int? year)
     {
         const string number = @"[+-]?\d+(?:[.,]\d+)?";
-        var match = Regex.Match(line.Trim(), $@"^(?<semester>[אבק])\s+(?<code>\d{{5,10}})\s+(?<name>.+?)\s+שיעור\s+(?<credits>{number})(?:\s+(?<extra>{number}))?\s+(?<grade>{number})\s*$");
+        const string status = @"טרם|השלים\s+חובותיו|No\s+grade|Completed";
+        const string kind = @"שיעור|סמינר\s*/\s*סדנ[אה]|סמינר|סדנ[אה]|Lecture|Seminar|Workshop";
+        var match = Regex.Match(line.Trim(), $@"^(?<semester>[אבק])\s+(?<code>\d{{5,10}})\s+(?<name>.+?)\s+(?<kind>{kind})\s+(?<credits>{number})(?:\s+(?<extra>{number}))?\s+(?<grade>{number}|{status})\s*$", RegexOptions.IgnoreCase);
         if (!match.Success)
-            match = Regex.Match(line.Trim(), $@"^(?<grade>{number})\s+(?:(?<extra>{number})\s+)?(?<credits>{number})\s+שיעור\s+(?<name>.+?)\s+(?<code>\d{{5,10}})\s+(?<semester>[אבק])\s*$");
+            match = Regex.Match(line.Trim(), $@"^(?<grade>{number}|{status})\s+(?:(?<extra>{number})\s+)?(?<credits>{number})\s+(?<kind>{kind})\s+(?<name>.+?)\s+(?<code>\d{{5,10}})\s+(?<semester>[אבק])\s*$", RegexOptions.IgnoreCase);
         if (!match.Success)
         {
             // A trailing integer in a title (Calculus 2) is not safely distinguishable
             // from integer credits. English transcript credits require a decimal token
             // or an explicit Lecture marker; otherwise ask the user to supply credits.
-            match = Regex.Match(line.Trim(), $@"^(?<semester>Fall|Spring|Summer)\s+(?<code>\d{{5,10}})\s+(?<name>.+?)\s+(?:Lecture\s+(?<credits>{number})\s+|(?<credits>\d+[.,]\d+)\s+)?(?<grade>{number})\s*$", RegexOptions.IgnoreCase);
+            match = Regex.Match(line.Trim(), $@"^(?<semester>Fall|Spring|Summer)\s+(?<code>\d{{5,10}})\s+(?<name>.+?)\s+(?:(?<kind>{kind})\s+(?:(?<credits>{number})\s+)?|(?<credits>\d+[.,]\d+)\s+)?(?<grade>{number}|{status})\s*$", RegexOptions.IgnoreCase);
         }
         if (!match.Success) return null;
         string Get(string key) => match.Groups[key].Value;
@@ -179,10 +181,12 @@ public sealed partial class TextCourseParser : ITextCourseParser
             Name = Get("name"), Credits = Number(Get("credits")), Grade = Number(Get("grade")),
             Year = year, Semester = Semester(Get("semester")), OriginalLine = line, Line = lineNumber,
             RawValues = new() { ["name"] = Get("name"), ["credits"] = Get("credits"), ["grade"] = Get("grade"),
-                ["courseCode"] = Get("code"), ["semester"] = Get("semester"), ["additionalCredits"] = Get("extra") }
+                ["courseCode"] = Get("code"), ["semester"] = Get("semester"), ["additionalCredits"] = Get("extra"), ["courseType"] = Get("kind") }
         };
         if (row.Credits is null or <= 0 or > 1000) row.Warnings.Add("invalid-credits");
-        if (row.Grade is null or < 0 or > 100) row.Warnings.Add("invalid-grade");
+        var hasStatus = Regex.IsMatch(Get("grade"), $@"^(?:{status})$", RegexOptions.IgnoreCase);
+        if (!hasStatus && row.Grade is null or < 0 or > 100) row.Warnings.Add("invalid-grade");
+        if (hasStatus) row.Warnings.Add("non-numeric-status");
         if (row.Name.Length > 200) row.Warnings.Add("invalid-name");
         if (Get("extra").Length > 0 && Number(Get("extra")) != row.Credits) row.Warnings.Add("different-credit-values");
         return row;

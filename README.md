@@ -85,3 +85,5 @@ Captured from the running application with fictitious demo data. No database or 
 ![Supported formats guide](screenshots/supported-formats.png)
 
 ![Adjustable academic year mapping](screenshots/year-mapping.png)
+
+Transcript course types include lectures, seminars and workshops. Statuses "טרם", "השלים חובותיו", "No grade" and "Completed" produce blank numeric grades (excluded from averages), with the status preserved in the review source. Missing credits still require correction.

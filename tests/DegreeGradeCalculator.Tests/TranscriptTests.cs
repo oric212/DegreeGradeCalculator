@@ -5,6 +5,43 @@ namespace DegreeGradeCalculator.Tests;
 
 public class TranscriptTests
 {
+    [Fact]
+    public void EnglishCompletedExemptionKeepsCreditsButNoNumericGrade()
+    {
+        var row = Assert.Single(new TextCourseParser().Parse(new("Fall 899996 Exemption for Social Activity Volunteering Lecture 2.0 Completed")).Courses);
+        Assert.Equal("Exemption for Social Activity Volunteering", row.Name);
+        Assert.Equal(2, row.Credits); Assert.Null(row.Grade);
+        Assert.Equal("Completed", row.RawValues["grade"]);
+        Assert.Contains("non-numeric-status", row.Warnings);
+        Assert.DoesNotContain("invalid-grade", row.Warnings);
+    }
+    [Theory]
+    [InlineData("א 150034 סדנה: הנדסת תוכנה סמינר/סדנא 6.0 6.0 93", "סדנה: הנדסת תוכנה", 6, 93)]
+    [InlineData("א 899996 פטור בגין פעילות חברתית-התנדבותית שיעור 2.0 2.0 השלים חובותיו", "פטור בגין פעילות חברתית-התנדבותית", 2, null)]
+    [InlineData("ב 960006 מיומנויות נדרשות בעולם התעסוקה שיעור 2.0 טרם", "מיומנויות נדרשות בעולם התעסוקה", 2, null)]
+    [InlineData("ק 142203 פיתוח תוכנה מבוסס ג'אווה שיעור 4.0 טרם", "פיתוח תוכנה מבוסס ג'אווה", 4, null)]
+    [InlineData("ק 142234 מבוא לפיתוח משחקים שיעור 3.0 טרם", "מבוא לפיתוח משחקים", 3, null)]
+    [InlineData("א 131111 סיבוכיות שיעור 4.0 טרם", "סיבוכיות", 4, null)]
+    [InlineData("א 141418 מבוא לתקשורת מחשבים שיעור 4.0 טרם", "מבוא לתקשורת מחשבים", 4, null)]
+    [InlineData("א 142239 מבוא לקריפטוגרפיה שימושית שיעור 3.0 טרם", "מבוא לקריפטוגרפיה שימושית", 3, null)]
+    public void WorkshopAndStatusRows(string line, string name, int credits, int? grade)
+    {
+        var result = new TextCourseParser().Parse(new("שנת לימודים 2026\n" + line));
+        Assert.Empty(result.UnparsedLines); var row = Assert.Single(result.Courses);
+        Assert.Equal(name, row.Name); Assert.Equal(credits, row.Credits); Assert.Equal((decimal?)grade, row.Grade);
+        Assert.DoesNotContain("invalid-grade", row.Warnings);
+        if (grade is null) Assert.Contains("non-numeric-status", row.Warnings);
+    }
+    [Theory]
+    [InlineData("Fall 131111 Complexity Studies Lecture No grade", "Complexity Studies")]
+    [InlineData("Fall 141418 Introduction to Computer Communication Lecture No grade", "Introduction to Computer Communication")]
+    public void EnglishNoGradeWithoutCredits(string line, string name)
+    {
+        var result = new TextCourseParser().Parse(new("ACADEMIC YEAR 2027\n" + line));
+        Assert.Empty(result.UnparsedLines); var row = Assert.Single(result.Courses);
+        Assert.Equal(name, row.Name); Assert.Null(row.Grade); Assert.Null(row.Credits);
+        Assert.Contains("invalid-credits", row.Warnings); Assert.DoesNotContain("invalid-grade", row.Warnings);
+    }
     [Theory]
     [InlineData("2024 - first year", 1)]
     [InlineData("ACADEMIC YEAR 2024 - second year", 2)]

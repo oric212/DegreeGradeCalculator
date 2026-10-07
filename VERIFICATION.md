@@ -3,7 +3,7 @@
 Verified on Windows x64 with .NET SDK 10.0.401.
 
 - Solution build: zero warnings or errors.
-- 96 xUnit tests: original calculation/storage coverage plus deterministic parsing, supported delimiters and headers, Hebrew/English destinations, preserved invalid input, size limits, manual mapping, normalized output, bulk defaults/overrides, exclusion, duplicates, atomic import, and a live HTTP test proving parse/preview are read-only and import requires confirmation.
+- 107 xUnit tests: original calculation/storage coverage plus deterministic parsing, supported delimiters and headers, Hebrew/English destinations, preserved invalid input, size limits, manual mapping, normalized output, bulk defaults/overrides, exclusion, duplicates, atomic import, and a live HTTP test proving parse/preview are read-only and import requires confirmation.
 - 5 browser-logic tests: exact decimal math, exclusions, component weighting, simulated propagation/isolation, distribution boundaries.
 - Self-contained Windows x64 publish includes the runtime, SQLite native library, and all browser assets.
 - Browser checks: degree creation, direct course editing, component course creation, warnings for excess weights, vertical semesters, simulation controls, immediate exact component entry, restoration after simulation, Hebrew RTL, English LTR, and a 390-pixel mobile layout.
