@@ -2,7 +2,7 @@
   <PropertyGroup><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><OutputType>WinExe</OutputType><AssemblyName>DegreeGradeCalculator</AssemblyName><ApplicationIcon>Assets/app.ico</ApplicationIcon></PropertyGroup>
   <ItemGroup><PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" /><PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" /></ItemGroup>
   <ItemGroup><Content Update="wwwroot\**" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
-  <PropertyGroup><Version>1.1.1</Version></PropertyGroup>
+  <PropertyGroup><Version>1.1.2</Version></PropertyGroup>
   <PropertyGroup Condition="'$(PublishProfile)' == 'Windows'">
     <AssemblyName>GradePilot</AssemblyName>
   </PropertyGroup>

@@ -10,13 +10,14 @@ const source = fs.readFileSync(
 const context = vm.createContext({
   structuredClone,
   crypto: require("node:crypto").webcrypto,
+  document: {addEventListener() {}},
 });
 vm.runInContext(
   source.slice(0, source.indexOf("function toast")) +
-    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue,degreeInsights,formatCredits,formatGrade,formatRequiredCredits,validRequiredCredits,validGrade,requiredCreditAttributes,gradeAttributes};",
+    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue,degreeInsights,formatCredits,formatGrade,formatRequiredCredits,validRequiredCredits,validGrade,requiredCreditAttributes,gradeAttributes,courseCreditMinimum,courseCreditAttributes};",
   context,
 );
-const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue, degreeInsights, formatCredits, formatGrade, formatRequiredCredits, validRequiredCredits, validGrade, requiredCreditAttributes, gradeAttributes } = context.logic;
+const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue, degreeInsights, formatCredits, formatGrade, formatRequiredCredits, validRequiredCredits, validGrade, requiredCreditAttributes, gradeAttributes, courseCreditMinimum, courseCreditAttributes } = context.logic;
 const course = (credits, grade) => ({
   credits,
   grade,
@@ -220,4 +221,17 @@ test("semantic numeric formatting keeps credits precise, grades whole and averag
   assert.match(gradeAttributes, /step="1"/);
   assert.match(gradeAttributes, /dir="ltr"/);
   assert.equal(degreeInsights(degree).timeline[0].formatted, "82.00");
+});
+
+test("course-credit spinner steps by one while fractional inputs remain valid", () => {
+  for (const value of [3, 4, 120]) assert.equal(courseCreditMinimum(value), 1);
+  assert.equal(courseCreditMinimum(2.5), .5);
+  assert.equal(courseCreditMinimum(3.25), .25);
+  assert.equal(courseCreditMinimum(2.3), .3);
+  assert.equal(courseCreditMinimum(.01), .01);
+  assert.equal(courseCreditMinimum(0), 1);
+  assert.equal(courseCreditMinimum(-2.5), 1);
+  assert.match(courseCreditAttributes(3), /min="1"/);
+  assert.match(courseCreditAttributes(2.5), /min="0.5"/);
+  assert.match(courseCreditAttributes(2.5), /step="1"/);
 });

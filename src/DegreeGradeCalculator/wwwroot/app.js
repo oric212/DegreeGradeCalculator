@@ -237,6 +237,19 @@ const formatCredits = value => String(value),
   validGrade = value => value === null || (Number.isInteger(value) && value >= 0 && value <= 100),
   requiredCreditAttributes = 'type="number" dir="ltr" min="1" max="10000" step="1" required',
   gradeAttributes = 'type="number" dir="ltr" min="0" max="100" step="1"';
+function courseCreditMinimum(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0.01) return 1;
+  const [numerator, denominator] = fraction(number);
+  const remainder = numerator % denominator;
+  return remainder ? Number(remainder) / Number(denominator) : 1;
+}
+const courseCreditAttributes = value => `type="number" dir="ltr" min="${courseCreditMinimum(value)}" max="1000" step="1" required data-course-credits`;
+// Match the native step base to the typed fraction: 3 -> 4, 2.5 -> 3.5.
+// Updating before form/import validation keeps manually entered fractions valid.
+document.addEventListener("input", event => {
+  if (event.target.matches("[data-course-credits]")) event.target.min = String(courseCreditMinimum(event.target.value));
+}, true);
 function distribution(s) {
   let total = s.bins.reduce((a, b) => a + b, 0);
   if (!total) return `<p class="distribution-empty">${esc(t("noGradedCourses"))}</p>`;
@@ -549,7 +562,7 @@ function courseForm(id, semId) {
   dialog(
     id ? t("edit") : t("addCourse"),
     label(t("name"), input("name", c.name, 'required maxlength="200"')) +
-      `<div class="form-row">${label(t("creditPoints"), input("credits", c.credits, 'type="number" min="0.01" max="1000" step="any" required'))}${label(t("period"), `<select name="semester">${options}</select>`)}</div>` +
+      `<div class="form-row">${label(t("creditPoints"), input("credits", c.credits, courseCreditAttributes(c.credits)))}${label(t("period"), `<select name="semester">${options}</select>`)}</div>` +
       label(
         t("mode"),
         `<select id="mode"><option value="direct">${t("direct")}</option><option value="binary" ${c.passed != null ? "selected" : ""}>${t("binary")}</option><option value="components" ${c.usesComponents ? "selected" : ""}>${t("components")}</option></select>`,
