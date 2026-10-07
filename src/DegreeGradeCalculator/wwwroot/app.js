@@ -266,7 +266,8 @@ async function change(fn) {
 function render() {
   document.documentElement.lang = data.language;
   document.documentElement.dir = data.language === "he" ? "rtl" : "ltr";
-  $("#language").textContent = data.language === "he" ? "English" : "עברית";
+  $("#language").setAttribute("aria-label", t("language"));
+  $("#language").title = t("language");
   ["export", "import", "shutdown"].forEach(
     (k) => ($("#" + k).textContent = t(k)),
   );
@@ -664,8 +665,19 @@ $("#app").addEventListener("click", async (e) => {
     toast(err.message);
   }
 });
-$("#language").onclick = () =>
-  change(() => (data.language = data.language === "en" ? "he" : "en"));
+$("#language").onclick = () => {
+  document.querySelectorAll("[data-language]").forEach(button =>
+    button.setAttribute("aria-pressed", String(button.dataset.language === data.language)));
+  $("#languageDialog").showModal();
+};
+document.querySelectorAll("[data-language]").forEach(button => {
+  button.onclick = async () => {
+    try {
+      await change(() => { data.language = button.dataset.language; });
+      $("#languageDialog").close();
+    } catch (error) { toast(error.message); }
+  };
+});
 $("#export").onclick = () => {
   let url = URL.createObjectURL(
       new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),

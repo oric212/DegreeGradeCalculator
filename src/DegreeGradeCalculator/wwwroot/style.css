@@ -409,7 +409,15 @@ footer {
 /* Keep the brand on the right and toolbar actions in a stable order. */
 header { direction: rtl; }
 header .brand, header nav { direction: ltr; }
-header nav { display: grid; grid-template-columns: 90px 125px 125px 105px; }
+header nav { display: grid; grid-template-columns: 44px 125px 125px 105px; }
+header nav button { font-size: 14px; padding: 9px 10px; white-space: nowrap; min-height: 44px; }
+#language { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; }
+#languageDialog { width: min(300px, calc(100% - 32px)); padding: 24px; }
+#languageDialog h2 { font-size: 19px; }
+.language-options { display: grid; gap: 10px; margin-block: 20px; }
+.language-options button { padding: 12px; }
+.language-options button[aria-pressed="true"] { background: #e7f0ff; border-color: #245dc1; font-weight: 600; }
+.language-close { width: 100%; font-size: 13px; }
 @media (max-width: 650px) {
   header { align-items: stretch; }
   header .brand { align-self: flex-start; }

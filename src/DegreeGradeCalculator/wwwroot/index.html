@@ -11,12 +11,20 @@
     <header>
       <a href="#" class="brand">◈ <span>GradePilot</span></a>
       <nav>
-        <button id="language">עברית</button><button id="export"></button
+        <button id="language" aria-label="Language / שפה" aria-haspopup="dialog" aria-controls="languageDialog" title="Language / שפה"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 7h14M5 17h14"/></svg></button><button id="export"></button
         ><button id="import"></button><button id="shutdown"></button>
       </nav>
     </header>
     <main id="app"></main>
     <input type="file" id="file" accept="application/json,.json" hidden />
+    <dialog id="languageDialog" aria-labelledby="languageTitle">
+      <h2 id="languageTitle">Language / שפה</h2>
+      <div class="language-options">
+        <button type="button" data-language="en" lang="en" dir="ltr">English</button>
+        <button type="button" data-language="he" lang="he" dir="rtl">עברית</button>
+      </div>
+      <form method="dialog"><button class="language-close">Close / סגירה</button></form>
+    </dialog>
     <dialog id="dialog">
       <form id="form">
         <div id="fields"></div>
