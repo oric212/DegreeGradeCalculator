@@ -5,6 +5,23 @@ namespace DegreeGradeCalculator.Tests;
 
 public class TranscriptTests
 {
+    [Theory]
+    [InlineData("2024 - first year", 1)]
+    [InlineData("ACADEMIC YEAR 2024 - second year", 2)]
+    [InlineData("שנת לימודים 2024 - שנה ב", 2)]
+    public void ExplicitCalendarYearMapping(string heading, int expected)
+    {
+        var row = Assert.Single(new TextCourseParser().Parse(new(heading + "\nFall 111112 Math 3.0 77")).Courses);
+        Assert.Equal(expected, row.Year); Assert.Equal("2024", row.RawValues["calendarYear"]);
+    }
+    [Fact]
+    public void CalendarYearsInTableAreSuggestedWithGapsPreserved()
+    {
+        var result = new TextCourseParser().Parse(new("Name|Credits|Grade|Year|Semester\nMath|3|77|2024|Fall\nOS|4|80|2026|Spring"));
+        Assert.Equal(1, result.Courses[0].Year); Assert.Equal(3, result.Courses[1].Year);
+        Assert.Equal("2026", result.Courses[1].RawValues["calendarYear"]);
+        Assert.DoesNotContain("unknown-year", result.Courses[1].Warnings);
+    }
     [Fact]
     public void EnglishTranscriptRetainsMissingCreditsAndTitleNumbers()
     {

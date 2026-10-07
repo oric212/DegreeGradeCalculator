@@ -36,7 +36,7 @@ Choose **Import grades** on the dashboard or degree page. Paste copied text and 
 
 Supported formats include pipes (`Algorithms | 4 | 82`), CSV including quoted names, spreadsheet tabs, semicolons, spaced columns, `Algorithms 4 credits 82`, and `Algorithms - 4 - 82`. English/Hebrew headers and year/semester names are recognized. Decimal credits and blank grades are supported. Decimal commas work in non-comma-separated cells or quoted CSV cells.
 
-Hebrew and English academic transcripts are also supported: `שנת לימודים 2024` / `ACADEMIC YEAR 2024`, course codes, א/ב/ק or Fall/Spring/Summer, optional repeated credits, and reversed English rows. Calendar-year sections map chronologically to Year 1, Year 2, etc.; review destinations. Missing or ambiguous credits remain blank and require correction. The paste screen includes a collapsed supported-format guide.
+Hebrew and English academic transcripts are also supported: `שנת לימודים 2024` / `ACADEMIC YEAR 2024`, course codes, א/ב/ק or Fall/Spring/Summer, optional repeated credits, and reversed English rows. Calendar-year sections and table year cells receive suggested degree-year destinations, preserving year gaps. Use the editable Academic year mapping controls to set, for example, 2024 → Year 2 and 2025 → Year 3 for all courses in those years. Explicit headings such as `2024 - first year` are recognized. Missing or ambiguous credits remain blank and require correction. The paste screen includes a collapsed supported-format guide.
 
 This is a conservative local heuristic parser, not arbitrary natural-language understanding. Uncertain values retain their original text and warnings; unparsed lines remain visible and can become manual review cards. An advanced column-mapping fallback appears when needed. Unknown destinations can use defaults; destination years and semesters must already exist. Likely duplicates in the same semester can be skipped or imported as additional courses, never overwritten. The read-only normalized preview can be copied. Limits: 50,000 characters and 1,000 non-empty lines per paste.
 
@@ -83,3 +83,5 @@ Captured from the running application with fictitious demo data. No database or 
 </details>
 
 ![Supported formats guide](screenshots/supported-formats.png)
+
+![Adjustable academic year mapping](screenshots/year-mapping.png)

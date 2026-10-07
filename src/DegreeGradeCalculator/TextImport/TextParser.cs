@@ -83,16 +83,21 @@ public sealed partial class TextCourseParser : ITextCourseParser
         var columns = first?.Count ?? 0; bool uncertain = separator is null || (!header && columns > 3);
         var calendarYears = lines.Select(l => TranscriptYear(l.Text)).Where(y => y.HasValue)
             .Select(y => y!.Value).Distinct().Order().ToList();
-        int? transcriptYear = null; bool hasTranscript = false;
+        int? transcriptYear = null; int? sourceCalendarYear = null; bool hasTranscript = false;
+        var explicitYears = lines.Select(l => (Calendar: TranscriptYear(l.Text), Year: ExplicitTranscriptYear(l.Text)))
+            .Where(x => x.Calendar.HasValue && x.Year.HasValue).GroupBy(x => x.Calendar!.Value)
+            .ToDictionary(g => g.Key, g => g.Last().Year!.Value);
         foreach (var line in lines.Skip(header ? 1 : 0))
         {
             if (request.ColumnMapping is null && TranscriptYear(line.Text) is { } calendarYear)
             {
-                transcriptYear = calendarYears.IndexOf(calendarYear) + 1;
+                sourceCalendarYear = calendarYear;
+                transcriptYear = explicitYears.GetValueOrDefault(calendarYear, calendarYear - calendarYears[0] + 1);
                 continue;
             }
             if (request.ColumnMapping is null && Transcript(line.Text, line.Line, transcriptYear) is { } transcript)
             {
+                if (sourceCalendarYear is { } cy) transcript.RawValues["calendarYear"] = cy.ToString(CultureInfo.InvariantCulture);
                 courses.Add(transcript); hasTranscript = true; continue;
             }
             List<string>? cells = separator is { } s ? Split(line.Text, s) : Heuristic(line.Text);
@@ -119,16 +124,40 @@ public sealed partial class TextCourseParser : ITextCourseParser
             if (header && cells.Count != first!.Count) row.Warnings.Add("column-count");
             courses.Add(row);
         }
+        foreach (var course in courses)
+        {
+            var calendar = Regex.Match(course.RawValues.GetValueOrDefault("year", ""), @"^(?:(?:academic year|year|שנת לימודים|שנה)\s+)?(?<year>[12]\d{3})$", RegexOptions.IgnoreCase);
+            if (calendar.Success) course.RawValues["calendarYear"] = calendar.Groups["year"].Value;
+        }
+        var allCalendarYears = courses.Where(c => c.RawValues.ContainsKey("calendarYear"))
+            .Select(c => int.Parse(c.RawValues["calendarYear"], CultureInfo.InvariantCulture)).Concat(calendarYears).ToList();
+        if (allCalendarYears.Count > 0)
+        {
+            var firstCalendarYear = allCalendarYears.Min();
+            foreach (var course in courses.Where(c => c.RawValues.ContainsKey("calendarYear")))
+            {
+                var calendar = int.Parse(course.RawValues["calendarYear"], CultureInfo.InvariantCulture);
+                course.Year = explicitYears.GetValueOrDefault(calendar, calendar - firstCalendarYear + 1);
+                course.Warnings.Remove("unknown-year");
+            }
+            warnings.Add(new("calendar-years-mapped"));
+        }
         if (courses.Any(x => x.Warnings.Count > 0)) uncertain = true;
-        if (hasTranscript && calendarYears.Count > 0) warnings.Add(new("calendar-years-mapped"));
         if (!header && separator is not null && request.ColumnMapping is null) warnings.Add(new("inferred-columns"));
         return new(courses.Count > 0, hasTranscript ? "academic-transcript" : separator is null ? "heuristic" : "tabular", courses, warnings, unparsed,
             mapping.Take(columns).Concat(Enumerable.Repeat<string?>(null, Math.Max(0, columns - mapping.Count))).ToList(), columns, header, uncertain);
     }
     private static int? TranscriptYear(string line)
     {
-        var match = Regex.Match(line.Trim(), @"^(?:שנת\s+לימודים|academic\s+year)\s+(?<year>\d{4})\s*$", RegexOptions.IgnoreCase);
+        var match = Regex.Match(line.Trim(), @"^(?:(?:שנת\s+לימודים|academic\s+year)\s+)?(?<year>[12]\d{3})(?:\s*[-–—:]\s*(?:first|second|third|fourth|fifth|\d+|ראשונה|שנייה|שניה|שלישית|רביעית|חמישית|א|ב|ג|ד|ה)(?:\s+year)?|\s*[-–—:]\s*(?:year|שנה)\s+\S+)?\s*$", RegexOptions.IgnoreCase);
         return match.Success ? int.Parse(match.Groups["year"].Value, CultureInfo.InvariantCulture) : null;
+    }
+    private static int? ExplicitTranscriptYear(string line)
+    {
+        var suffix = Regex.Match(line, @"[-–—:]\s*(?<value>.+?)\s*$").Groups["value"].Value;
+        var value = Regex.Replace(suffix.ToLowerInvariant(), @"\byear\b|שנה", "").Trim();
+        return value switch { "first" or "ראשונה" => 1, "second" or "שנייה" or "שניה" => 2,
+            "third" or "שלישית" => 3, "fourth" or "רביעית" => 4, "fifth" or "חמישית" => 5, _ => Year(value) };
     }
     private static ParsedCourse? Transcript(string line, int lineNumber, int? year)
     {
