@@ -14,10 +14,10 @@ const context = vm.createContext({
 });
 vm.runInContext(
   source.slice(0, source.indexOf("function toast")) +
-    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue,degreeInsights,formatCredits,formatGrade,formatRequiredCredits,validRequiredCredits,validGrade,requiredCreditAttributes,gradeAttributes,courseCreditMinimum,courseCreditAttributes};",
+    "\nthis.logic={final,summary,avg,clone,availableSemesters,yearCourses,courses,simulationChanged,modifiedCourses,simulationBumpEnabled,simulationBumpValue,degreeInsights,formatCredits,formatGrade,formatRequiredCredits,validRequiredCredits,validGrade,requiredCreditAttributes,gradeAttributes,courseCreditMinimum,courseCreditAttributes,gradeSheetText};",
   context,
 );
-const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue, degreeInsights, formatCredits, formatGrade, formatRequiredCredits, validRequiredCredits, validGrade, requiredCreditAttributes, gradeAttributes, courseCreditMinimum, courseCreditAttributes } = context.logic;
+const { final, summary, avg, clone, availableSemesters, yearCourses, courses, simulationChanged, modifiedCourses, simulationBumpEnabled, simulationBumpValue, degreeInsights, formatCredits, formatGrade, formatRequiredCredits, validRequiredCredits, validGrade, requiredCreditAttributes, gradeAttributes, courseCreditMinimum, courseCreditAttributes, gradeSheetText } = context.logic;
 const course = (credits, grade) => ({
   credits,
   grade,
@@ -234,4 +234,31 @@ test("course-credit spinner steps by one while fractional inputs remain valid", 
   assert.match(courseCreditAttributes(3), /min="1"/);
   assert.match(courseCreditAttributes(2.5), /min="0.5"/);
   assert.match(courseCreditAttributes(2.5), /step="1"/);
+});
+
+test("grade sheets group semesters in order without changing saved data", () => {
+  const degree = {name:"Demo degree", years:[{semesters:[
+    {name:"Summer", courses:[{...course(2,null),name:"Pending"}]},
+    {name:"B", courses:[{...course(2,null),name:"Workshop",passed:true}]},
+    {name:"A", courses:[{...component([70,90],[30,80]),name:"Studio"},{...course(2.5,81),name:"Coding | practice\nPart 2"}]}
+  ],yearlyCourses:[{...course(1,null),name:"Annual",passed:false}]},
+  {semesters:[{name:"A",courses:[]}]}]};
+  const before = JSON.stringify(degree);
+  const text = gradeSheetText(degree,"en");
+  assert.ok(text.indexOf("Semester A") < text.indexOf("Semester B"));
+  assert.ok(text.indexOf("Semester B") < text.indexOf("Summer"));
+  assert.match(text,/Studio \| 5 \| 87/);
+  assert.match(text,/Coding   practice Part 2 \| 2.5 \| 81/);
+  assert.match(text,/Workshop \| 2 \| Passed/);
+  assert.match(text,/Pending \| 2 \| —/);
+  assert.match(text,/Annual \| 1 \| Failed/);
+  assert.match(text,/Yearly courses/);
+  assert.match(text,/Year 2/);
+  assert.ok(text.includes("\r\n"));
+  assert.equal(JSON.stringify(degree),before);
+  const hebrew = gradeSheetText(degree,"he");
+  assert.match(hebrew,/גיליון ציונים/);
+  assert.match(hebrew,/קיץ/);
+  assert.match(hebrew,/Workshop \| 2 \| עבר/);
+  assert.equal(JSON.stringify(degree),before);
 });

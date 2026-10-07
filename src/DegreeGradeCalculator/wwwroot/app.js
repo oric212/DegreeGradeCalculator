@@ -22,7 +22,7 @@ const words = {
     home: "Your degrees",
     intro: "A clearer view of your academic journey.",
     addDegree: "Add degree",
-    export: "Export backup",
+    export: "Export backup", exportGradeSheet: "Export grade sheet", gradeSheet: "Grade sheet",
     import: "Restore backup",
     shutdown: "Close app",
     open: "Open degree",
@@ -92,7 +92,7 @@ const words = {
     home: "התארים שלך",
     intro: "תמונה ברורה של הדרך האקדמית שלך.",
     addDegree: "הוספת תואר",
-    export: "ייצוא גיבוי",
+    export: "ייצוא גיבוי", exportGradeSheet: "ייצוא גיליון ציונים", gradeSheet: "גיליון ציונים",
     import: "שחזור גיבוי",
     shutdown: "סגירת היישום",
     open: "פתיחת תואר",
@@ -157,7 +157,7 @@ const words = {
     reportTitle: "סקירה אקדמית",
   },
 };
-const t = (k) => words[data?.language || "en"][k] || k,
+const t = (k, language = data?.language || "en") => words[language][k] || k,
   uid = () => crypto.randomUUID(),
   clone = (o) => structuredClone(o);
 // Decimal arithmetic keeps weights and credits exact until presentation.
@@ -259,22 +259,49 @@ const metric = (label, value) =>
   `<div class="metric"><small>${esc(label)}</small><strong>${value}</strong></div>`;
 const button = (action, label, extra = "") =>
   `<button data-action="${action}" ${extra}>${esc(label)}</button>`;
-const yearName = (i) =>
-  data.language === "he"
+const yearName = (i, language = data.language) =>
+  language === "he"
     ? `שנה ${["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ז׳", "ח׳", "ט׳", "י׳"][i] || i + 1}`
     : `Year ${i + 1}`;
-const semName = (s) =>
+const semName = (s, language = data.language) =>
   s.name === "A"
-    ? data.language === "he"
+    ? language === "he"
       ? "סמסטר א׳"
       : "Semester A"
     : s.name === "B"
-      ? data.language === "he"
+      ? language === "he"
         ? "סמסטר ב׳"
         : "Semester B"
       : s.name === "Summer"
-        ? t("summer")
+        ? t("summer", language)
         : s.name;
+function gradeSheetText(degree, language) {
+  const cell = value => String(value).replace(/[\r\n\t|]+/g, " ").trim();
+  const lines = ["GradePilot · " + t("gradeSheet", language), cell(degree.name), "",
+    t("average", language) + ": " + avg(summary(courses(degree)).average)];
+  const order = {A: 0, B: 1, Summer: 2};
+  degree.years.forEach((year, index) => {
+    lines.push("", yearName(index, language), "────────────────────────");
+    const periods = [...year.semesters].sort((a, b) => (order[a.name] ?? 3) - (order[b.name] ?? 3));
+    if (year.yearlyCourses?.length) periods.push({name: "Yearly", courses: year.yearlyCourses, yearly: true});
+    periods.forEach(period => {
+      lines.push("", cell(period.yearly ? t("yearlyCourses", language) : semName(period, language)));
+      if (!period.courses.length) { lines.push(t("none", language)); return; }
+      lines.push([t("name", language), t("creditPoints", language), t("grade", language)].join(" | "));
+      period.courses.forEach(course => lines.push([cell(course.name), formatCredits(course.credits),
+        course.passed != null ? t(course.passed ? "passed" : "failed", language) : formatGrade(final(course))].join(" | ")));
+    });
+  });
+  return lines.join("\r\n") + "\r\n";
+}
+function downloadGradeSheet(degree) {
+  const name = degree.name.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").replace(/[. ]+$/g, "").slice(0, 100) || "degree";
+  const url = URL.createObjectURL(new Blob(["\uFEFF", gradeSheetText(degree, data.language)], {type: "text/plain;charset=utf-8"}));
+  const link = document.createElement("a");
+  link.href = url; link.download = `GradePilot-${name}-grades.txt`;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 function availableSemesters(year, current = null) {
   const taken = new Set(year.semesters.filter(semester => semester.id !== current?.id).map(semester => semester.name.trim().toLowerCase()));
   return [...new Set(["A", "B", "Summer", ...(current && !["A", "B", "Summer"].includes(current.name) ? [current.name] : [])])].filter(name => !taken.has(name.trim().toLowerCase()));
@@ -411,7 +438,7 @@ function render() {
             .map((d) => {
               let s = summary(courses(d)),
                 p = (s.credits / d.requiredCredits) * 100;
-              return `<article class="card degree-card"><div class="degree-card-head"><h2>${esc(d.name)}</h2>${degreeOptions(d)}</div><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${formatCredits(s.credits)} <span class="unit">/ ${formatRequiredCredits(d.requiredCredits)}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small class="progress-caption"><bdi>${p.toFixed(1)}%</bdi></small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}</div></article>`;
+              return `<article class="card degree-card"><div class="degree-card-head"><h2>${esc(d.name)}</h2>${degreeOptions(d)}</div><div class="metrics">${metric(t("average"), avg(s.average))}${metric(t("credits"), `${formatCredits(s.credits)} <span class="unit">/ ${formatRequiredCredits(d.requiredCredits)}</span>`)}</div><div class="progress"><div style="width:${Math.min(p, 100)}%"></div></div><small class="progress-caption"><bdi>${p.toFixed(1)}%</bdi></small>${distribution(s)}<div class="actions sub-actions">${button("open", t("open"), `class="primary" data-id="${d.id}"`)}${button("exportGradeSheet", t("exportGradeSheet"), `data-id="${d.id}"`)}</div></article>`;
             })
             .join("")}</div>`
     }`;
@@ -747,6 +774,11 @@ $("#app").addEventListener("click", async (e) => {
         break;
       case "insights": degreeView = "insights"; render(); break;
       case "degreeCourses": degreeView = "courses"; render(); break;
+      case "exportGradeSheet": {
+        const degree = data.degrees.find(item => item.id === b.dataset.id);
+        if (degree) downloadGradeSheet(degree);
+        break;
+      }
       case "open":
         degreeView = "courses";
         selected = b.dataset.id;

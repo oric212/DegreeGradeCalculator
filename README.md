@@ -15,6 +15,7 @@ Add a degree, then enter courses or use **Import grades**. The app opens in your
 ## What you can do
 
 - Organize multiple degrees by year, semester, and yearly courses.
+- Download a text grade sheet from a degree’s home-screen card, grouped by year and semester in your chosen language.
 - Enter direct grades, pass/fail results, or weighted components.
 - See separate degree, year, and semester averages, credit progress, and grade ranges.
 - Open **Insights / תובנות** beside the degree report to see grades from highest to lowest, the courses that raise or lower your GPA most, and a cumulative-average graph. It only reads saved results.
