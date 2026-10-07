@@ -8,22 +8,22 @@ public class TranscriptTests
     [Fact]
     public void EnglishCompletedExemptionKeepsCreditsButNoNumericGrade()
     {
-        var row = Assert.Single(new TextCourseParser().Parse(new("Fall 899996 Exemption for Social Activity Volunteering Lecture 2.0 Completed")).Courses);
-        Assert.Equal("Exemption for Social Activity Volunteering", row.Name);
+        var row = Assert.Single(new TextCourseParser().Parse(new("Fall 899996 Demo Community Activity Lecture 2.0 Completed")).Courses);
+        Assert.Equal("Demo Community Activity", row.Name);
         Assert.Equal(2, row.Credits); Assert.Null(row.Grade);
         Assert.Equal("Completed", row.RawValues["grade"]);
         Assert.Contains("non-numeric-status", row.Warnings);
         Assert.DoesNotContain("invalid-grade", row.Warnings);
     }
     [Theory]
-    [InlineData("א 150034 סדנה: הנדסת תוכנה סמינר/סדנא 6.0 6.0 93", "סדנה: הנדסת תוכנה", 6, 93)]
-    [InlineData("א 899996 פטור בגין פעילות חברתית-התנדבותית שיעור 2.0 2.0 השלים חובותיו", "פטור בגין פעילות חברתית-התנדבותית", 2, null)]
-    [InlineData("ב 960006 מיומנויות נדרשות בעולם התעסוקה שיעור 2.0 טרם", "מיומנויות נדרשות בעולם התעסוקה", 2, null)]
-    [InlineData("ק 142203 פיתוח תוכנה מבוסס ג'אווה שיעור 4.0 טרם", "פיתוח תוכנה מבוסס ג'אווה", 4, null)]
-    [InlineData("ק 142234 מבוא לפיתוח משחקים שיעור 3.0 טרם", "מבוא לפיתוח משחקים", 3, null)]
-    [InlineData("א 131111 סיבוכיות שיעור 4.0 טרם", "סיבוכיות", 4, null)]
-    [InlineData("א 141418 מבוא לתקשורת מחשבים שיעור 4.0 טרם", "מבוא לתקשורת מחשבים", 4, null)]
-    [InlineData("א 142239 מבוא לקריפטוגרפיה שימושית שיעור 3.0 טרם", "מבוא לקריפטוגרפיה שימושית", 3, null)]
+    [InlineData("א 150034 סדנה: עיצוב מדיה סמינר/סדנא 6.0 6.0 91", "סדנה: עיצוב מדיה", 6, 91)]
+    [InlineData("א 899996 פעילות קהילתית לדוגמה שיעור 2.0 2.0 השלים חובותיו", "פעילות קהילתית לדוגמה", 2, null)]
+    [InlineData("ב 960006 מיומנויות יצירתיות לדוגמה שיעור 2.0 טרם", "מיומנויות יצירתיות לדוגמה", 2, null)]
+    [InlineData("ק 142203 עיצוב אינטראקטיבי מבוסס ג'אווה שיעור 4.0 טרם", "עיצוב אינטראקטיבי מבוסס ג'אווה", 4, null)]
+    [InlineData("ק 142234 מבוא ליצירה במשחקים שיעור 3.0 טרם", "מבוא ליצירה במשחקים", 3, null)]
+    [InlineData("א 131111 יצירה מתקדמת שיעור 4.0 טרם", "יצירה מתקדמת", 4, null)]
+    [InlineData("א 141418 מבוא לתקשורת חזותית שיעור 4.0 טרם", "מבוא לתקשורת חזותית", 4, null)]
+    [InlineData("א 142239 מבוא לאמנות שימושית שיעור 3.0 טרם", "מבוא לאמנות שימושית", 3, null)]
     public void WorkshopAndStatusRows(string line, string name, int credits, int? grade)
     {
         var result = new TextCourseParser().Parse(new("שנת לימודים 2026\n" + line));
@@ -33,8 +33,8 @@ public class TranscriptTests
         if (grade is null) Assert.Contains("non-numeric-status", row.Warnings);
     }
     [Theory]
-    [InlineData("Fall 131111 Complexity Studies Lecture No grade", "Complexity Studies")]
-    [InlineData("Fall 141418 Introduction to Computer Communication Lecture No grade", "Introduction to Computer Communication")]
+    [InlineData("Fall 131111 Advanced Creative Studies Lecture No grade", "Advanced Creative Studies")]
+    [InlineData("Fall 141418 Introduction to Visual Communication Lecture No grade", "Introduction to Visual Communication")]
     public void EnglishNoGradeWithoutCredits(string line, string name)
     {
         var result = new TextCourseParser().Parse(new("ACADEMIC YEAR 2027\n" + line));
@@ -48,13 +48,13 @@ public class TranscriptTests
     [InlineData("שנת לימודים 2024 - שנה ב", 2)]
     public void ExplicitCalendarYearMapping(string heading, int expected)
     {
-        var row = Assert.Single(new TextCourseParser().Parse(new(heading + "\nFall 111112 Math 3.0 77")).Courses);
+        var row = Assert.Single(new TextCourseParser().Parse(new(heading + "\nFall 111112 Math 3.0 81")).Courses);
         Assert.Equal(expected, row.Year); Assert.Equal("2024", row.RawValues["calendarYear"]);
     }
     [Fact]
     public void CalendarYearsInTableAreSuggestedWithGapsPreserved()
     {
-        var result = new TextCourseParser().Parse(new("Name|Credits|Grade|Year|Semester\nMath|3|77|2024|Fall\nOS|4|80|2026|Spring"));
+        var result = new TextCourseParser().Parse(new("Name|Credits|Grade|Year|Semester\nMath|3|81|2024|Fall\nOS|4|78|2026|Spring"));
         Assert.Equal(1, result.Courses[0].Year); Assert.Equal(3, result.Courses[1].Year);
         Assert.Equal("2026", result.Courses[1].RawValues["calendarYear"]);
         Assert.DoesNotContain("unknown-year", result.Courses[1].Warnings);
@@ -64,60 +64,60 @@ public class TranscriptTests
     {
         var result = new TextCourseParser().Parse(new("""
             ACADEMIC YEAR 2024
-            Fall 111112 Mathematical Reasoning 3.0 77
-            Fall 111113 Calculus 1 6.0 69
-            Fall 111115 Introduction to Computer Science 6.0 76
-            Spring 111111 Introduction to Logic and Set Theory 4.0 66
-            Spring 111117 Linear algebra 1 6.0 85
-            Spring 111124 Advanced Programming in C Language 4.0 76
-            Spring 111126 Calculus 2 47
-            Summer 111121 Discrete Mathematics 53
-            Summer 111123 Introduction To Probability Theory 4.0 63
-            Summer 111126 Calculus 2 Lecture 4.0 80
+            Fall 111112 Creative Coding 3.0 81
+            Fall 111113 Visual Design 1 6.0 72
+            Fall 111115 Introduction to Creative Media 6.0 83
+            Spring 111111 Design Thinking 4.0 74
+            Spring 111117 Visual Stories 1 6.0 86
+            Spring 111124 Creative Work in C Language 4.0 83
+            Spring 111126 Visual Design 2 43
+            Summer 111121 Color Studio 56
+            Summer 111123 Introduction to Digital Arts 4.0 63
+            Summer 111126 Visual Design 2 Lecture 4.0 78
             """));
         Assert.Equal(10, result.Courses.Count); Assert.Empty(result.UnparsedLines);
         Assert.All(result.Courses, c => Assert.Equal(1, c.Year));
-        Assert.Equal("Calculus 1", result.Courses[1].Name);
-        Assert.Equal("Calculus 2", result.Courses[6].Name);
-        Assert.Equal(47, result.Courses[6].Grade); Assert.Null(result.Courses[6].Credits);
-        Assert.Null(result.Courses[7].Credits); Assert.Equal(53, result.Courses[7].Grade);
+        Assert.Equal("Visual Design 1", result.Courses[1].Name);
+        Assert.Equal("Visual Design 2", result.Courses[6].Name);
+        Assert.Equal(43, result.Courses[6].Grade); Assert.Null(result.Courses[6].Credits);
+        Assert.Null(result.Courses[7].Credits); Assert.Equal(56, result.Courses[7].Grade);
         Assert.Contains("invalid-credits", result.Courses[6].Warnings);
         Assert.Contains("invalid-credits", result.Courses[7].Warnings);
-        Assert.Equal("Calculus 2", result.Courses[9].Name);
-        Assert.Equal(4, result.Courses[9].Credits); Assert.Equal(80, result.Courses[9].Grade);
+        Assert.Equal("Visual Design 2", result.Courses[9].Name);
+        Assert.Equal(4, result.Courses[9].Credits); Assert.Equal(78, result.Courses[9].Grade);
         Assert.Equal("Summer", result.Courses[9].Semester);
     }
     public const string Sample = """
         שנת לימודים 2024
 
-        א 111112 תורת ההנמקה שיעור 3.0 3.0 77
-        א 111113 חשבון דיפרנציאלי ואינטגרלי 1 שיעור 6.0 6.0 69
-        א 111115 מבוא למדעי המחשב שיעור 6.0 6.0 76
-        ב 111111 מבוא ללוגיקה ולתורת הקבוצות שיעור 4.0 4.0 66
-        ב 111117 אלגברה לינארית 1 שיעור 6.0 6.0 85
-        ב 111124 תכנות מתקדם בשפת C שיעור 4.0 4.0 76
-        ב 111126 חשבון דיפרנציאלי ואינטגרלי 2 שיעור 4.0 47
-        ק 111121 מתמטיקה בדידה שיעור 4.0 53
-        ק 111123 מבוא להסתברות שיעור 4.0 4.0 63
-        ק 111126 חשבון דיפרנציאלי ואינטגרלי 2 שיעור 4.0 4.0 80
+        א 111112 יצירה דיגיטלית שיעור 3.0 3.0 81
+        א 111113 עיצוב חזותי 1 שיעור 6.0 6.0 72
+        א 111115 מבוא למדיה יצירתית שיעור 6.0 6.0 83
+        ב 111111 חשיבה עיצובית שיעור 4.0 4.0 74
+        ב 111117 סיפורים חזותיים 1 שיעור 6.0 6.0 86
+        ב 111124 יצירה אינטראקטיבית בשפת C שיעור 4.0 4.0 83
+        ב 111126 עיצוב חזותי 2 שיעור 4.0 43
+        ק 111121 מעבדת צבע שיעור 4.0 56
+        ק 111123 מבוא לאמנות דיגיטלית שיעור 4.0 4.0 63
+        ק 111126 עיצוב חזותי 2 שיעור 4.0 4.0 78
 
         שנת לימודים 2025
 
-        א 111121 מתמטיקה בדידה שיעור 4.0 4.0 90
-        א 121114 אלגברה ליניארית 2 שיעור 4.0 4.0 97
-        א 121115 מבנה מחשבים שיעור 4.0 4.0 60
-        א 121119 תכנות מכוון עצמים ושפת ++C שיעור 4.0 4.0 79
-        92 2.0 2.0 שיעור Hacking Tech English 800011 א
-        ב 121111 מבני נתונים שיעור 4.0 4.0 67
-        ב 121118 ארכיטקטורת מחשבים שיעור 4.0 4.0 60
-        ב 121150 כלים פרקטיים לתעשייה - בסיס שיעור 1.0 1.0 96
-        ב 142169 תכנות מונחה עצמים בסביבת דוט-נט ושפת #C שיעור 4.0 4.0 88
-        ק 121120 אלגוריתמים שיעור 4.0 66
-        ק 142180 מבוא לפונקציות מרוכבות שיעור 4.0 4.0 98
+        א 111121 מעבדת צבע שיעור 4.0 4.0 89
+        א 121114 סיפורים חזותיים 2 שיעור 4.0 4.0 94
+        א 121115 מבנה יצירות שיעור 4.0 4.0 62
+        א 121119 עיצוב אינטראקטיבי ושפת ++C שיעור 4.0 4.0 84
+        87 2.0 2.0 שיעור Creative Studio English 800011 א
+        ב 121111 מבני סיפורים שיעור 4.0 4.0 73
+        ב 121118 ארכיטקטורת עיצוב שיעור 4.0 4.0 62
+        ב 121150 כלים יצירתיים למדיה - בסיס שיעור 1.0 1.0 95
+        ב 142169 מעבדת יצירה בסביבת #C שיעור 4.0 4.0 85
+        ק 121120 טכניקות יצירה שיעור 4.0 74
+        ק 142180 מבוא לאנימציה שיעור 4.0 4.0 99
         """;
 
     [Fact]
-    public void FullUserTranscriptExtractsEveryCourseAndDestination()
+    public void FictionalTranscriptExtractsEveryCourseAndDestination()
     {
         var result = new TextCourseParser().Parse(new(Sample));
         Assert.Equal("academic-transcript", result.DetectedFormat);
@@ -127,24 +127,24 @@ public class TranscriptTests
         Assert.Equal(10, result.Courses.Count(c => c.Year == 1));
         Assert.Equal(11, result.Courses.Count(c => c.Year == 2));
         Assert.Equal(new[] { "A", "A", "A", "B", "B", "B", "B", "Summer", "Summer", "Summer", "A", "A", "A", "A", "A", "B", "B", "B", "B", "Summer", "Summer" }, result.Courses.Select(c => c.Semester));
-        Assert.Equal(new decimal?[] {77,69,76,66,85,76,47,53,63,80,90,97,60,79,92,67,60,96,88,66,98}, result.Courses.Select(c => c.Grade));
+        Assert.Equal(new decimal?[] {81,72,83,74,86,83,43,56,63,78,89,94,62,84,87,73,62,95,85,74,99}, result.Courses.Select(c => c.Grade));
         Assert.Equal(new decimal?[] {3,6,6,4,6,4,4,4,4,4,4,4,4,4,2,4,4,1,4,4,4}, result.Courses.Select(c => c.Credits));
         var english = result.Courses[14];
-        Assert.Equal("Hacking Tech English", english.Name);
+        Assert.Equal("Creative Studio English", english.Name);
         Assert.Equal("800011", english.RawValues["courseCode"]);
-        Assert.Equal("חשבון דיפרנציאלי ואינטגרלי 2", result.Courses[6].Name);
-        Assert.Equal("תכנות מונחה עצמים בסביבת דוט-נט ושפת #C", result.Courses[18].Name);
+        Assert.Equal("עיצוב חזותי 2", result.Courses[6].Name);
+        Assert.Equal("מעבדת יצירה בסביבת #C", result.Courses[18].Name);
         Assert.Contains(result.Warnings, w => w.Code == "calendar-years-mapped");
     }
     [Fact]
     public void CalendarYearsUseChronologicalOrderEvenWhenSectionsAreReversed()
     {
-        var rows = new TextCourseParser().Parse(new("שנת לימודים 2025\nא 121111 Math שיעור 4 80\nשנת לימודים 2024\nב 111111 OS שיעור 3 90")).Courses;
+        var rows = new TextCourseParser().Parse(new("שנת לימודים 2025\nא 121111 Math שיעור 4 78\nשנת לימודים 2024\nב 111111 OS שיעור 3 89")).Courses;
         Assert.Equal(2, rows[0].Year); Assert.Equal(1, rows[1].Year);
     }
     [Theory]
-    [InlineData("א 111111 Math שיעור 4 3 80")]
-    [InlineData("80 3 4 שיעור Math 111111 א")]
+    [InlineData("א 111111 Math שיעור 4 3 78")]
+    [InlineData("78 3 4 שיעור Math 111111 א")]
     public void DifferentCreditValuesRequireReview(string text)
     {
         var row = Assert.Single(new TextCourseParser().Parse(new(text)).Courses);
