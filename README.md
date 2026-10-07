@@ -8,7 +8,7 @@ I built GradePilot out of frustration with the grade-calculation tools I tried. 
 
 ## Using the Windows release
 
-Open `release/parser-win-x64/DegreeGradeCalculator.exe` by double-clicking. Keep the entire release folder together: it contains the bundled .NET runtime, SQLite library, and browser assets. The executable starts a loopback-only server on an available port and opens your default browser without a terminal window. Opening it again brings up the existing instance. Use **Close app** to shut down; closing the browser alone leaves the server running.
+Open `release/GradePilot/DegreeGradeCalculator.exe` by double-clicking. Keep the entire release folder together: it contains the bundled .NET runtime, SQLite library, and browser assets. The executable starts a loopback-only server on an available port and opens your default browser without a terminal window. Opening it again brings up the existing instance. Use **Close app** to shut down; closing the browser alone leaves the server running.
 
 ## Features
 
@@ -57,7 +57,7 @@ dotnet build
 dotnet test
 node --test tests/frontend.test.cjs # Optional browser-calculation checks
 dotnet run --project src/DegreeGradeCalculator
-dotnet publish src/DegreeGradeCalculator -c Release -r win-x64 --self-contained true -o release/win-x64
+dotnet publish src/DegreeGradeCalculator -c Release -r win-x64 --self-contained true -o release/GradePilot
 ```
 
 `--no-browser` suppresses browser launch for integration checks. `GRADEPILOT_DATA` overrides the data directory for isolated test instances. Each data directory has an exclusive instance lock. The server accepts only its loopback host and rejects cross-origin requests.
