@@ -47,6 +47,17 @@ public class ParserEndpointTests
             var imported = await http.PostAsJsonAsync("/api/import/courses", request with { Confirmed = true }); imported.EnsureSuccessStatusCode();
             var saved = JsonSerializer.Deserialize<Backup>(await http.GetStringAsync("/api/data"), Store.Json)!;
             Assert.Equal(45, Assert.Single(Calculation.Courses(saved.Degrees[0])).Grade);
+            var identical = await http.PostAsJsonAsync("/api/import/preview", request);
+            var same = await identical.Content.ReadFromJsonAsync<ImportPreview>();
+            Assert.Equal(0, same!.Count); Assert.Equal(1, same.Unchanged);
+            var update = request with { Rows = [new ReviewedCourse { Name = "Math", Credits = 3, Grade = 81 }] };
+            var reviewed = await http.PostAsJsonAsync("/api/import/preview", update);
+            var changes = await reviewed.Content.ReadFromJsonAsync<ImportPreview>();
+            Assert.Equal(1, changes!.Updated); Assert.Equal(45, changes.Updates[0].OldGrade);
+            var changed = await http.PostAsJsonAsync("/api/import/courses", update with { Confirmed = true, ReviewToken = changes.ReviewToken });
+            changed.EnsureSuccessStatusCode();
+            saved = JsonSerializer.Deserialize<Backup>(await http.GetStringAsync("/api/data"), Store.Json)!;
+            Assert.Equal(81, Assert.Single(Calculation.Courses(saved.Degrees[0])).Grade);
         }
         finally
         {

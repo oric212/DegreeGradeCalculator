@@ -163,6 +163,8 @@ let importDraft = null,
   previewSequence = 0;
 words.en.acceptBlankGrade = "Leave grade blank";
 words.he.acceptBlankGrade = "השארת הציון ריק";
+Object.assign(words.en, { addedCourses: "New courses", updatedCourses: "Courses to update", unchangedCourses: "Unchanged courses", updateDetails: "Review changes to existing courses", alreadyCurrent: "These courses are already up to date. Nothing needs to be imported.", repeatedRows: "Repeated rows in this draft use the last included occurrence.", replacesComponents: "The imported grade will replace the component calculation.", mergesDuplicates: "Existing duplicate entries will be merged into one course.", "import-changed": "Saved courses changed after review. Close this confirmation and review the import again." });
+Object.assign(words.he, { addedCourses: "קורסים חדשים", updatedCourses: "קורסים לעדכון", unchangedCourses: "קורסים ללא שינוי", updateDetails: "בדיקת השינויים בקורסים קיימים", alreadyCurrent: "הקורסים כבר מעודכנים. אין צורך בייבוא נוסף.", repeatedRows: "שורות חוזרות בטיוטה משתמשות בשורה האחרונה שנכללה.", replacesComponents: "הציון המיובא יחליף את החישוב לפי רכיבים.", mergesDuplicates: "רשומות כפולות קיימות יאוחדו לקורס אחד.", "import-changed": "הקורסים השמורים השתנו מאז הבדיקה. סגרו את האישור ובדקו את הייבוא שוב." });
 function openTextImport() {
   if (simulation || !data.degrees.length) return;
   importDraft = {
@@ -172,7 +174,7 @@ function openTextImport() {
     defaultSemester: "A",
     rows: [],
     result: null,
-    duplicatePolicy: "skip",
+    duplicatePolicy: "update",
     preview: null,
   };
   importDraft.defaultSemester =
@@ -199,7 +201,7 @@ function semesterOptions(year, value, allowDefault) {
 function renderTextImport() {
   const draft = importDraft;
   $("#app").innerHTML =
-    `<div class="heading"><div>${button("leaveTextImport", t("back"))}<h1>${t("textImport")}</h1><p>${t("pasteHelp")}</p></div></div><section class="card"><div class="paste-heading"><h2>${t("pasteTitle")}</h2></div><details class="format-guide"><summary>${t("supportedFormats")}</summary><div><p>${t("formatsTables")}</p><pre dir="ltr">Creative Coding | 3 | 81</pre><p>${t("formatsLists")}</p><pre dir="ltr">Creative Coding 3 credits 81</pre><p>${t("formatsTranscripts")}</p><pre dir="auto">שנת לימודים 2030&#10;א 410101 יצירה דיגיטלית שיעור 3.0 3.0 81</pre><pre dir="ltr">ACADEMIC YEAR 2030&#10;Fall 410101 Creative Coding 3.0 81</pre><p>${t("formatsYears")}</p></div></details>${label(t("pasteLabel"), `<textarea id="pasteText" maxlength="50000" rows="7" dir="auto">${esc(draft.text)}</textarea>`)}<div class="actions">${button("parseText", t("parseText"), 'class="primary"')}${button("clearText", t("clearText"))}</div><p id="parseError" role="alert"></p></section>${draft.result ? `<section class="card"><h2>${t("reviewTitle")}</h2><p>${t("reviewHelp")}</p><div class="import-defaults">${label(t("targetDegree"), `<select id="importDegree">${data.degrees.map((d) => `<option value="${d.id}" ${d.id === draft.degreeId ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>`)}${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(draft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(draft.defaultYear, draft.defaultSemester, false)}</select>`)}</div>${calendarMappingPanel()}${draft.result.warnings.filter(w => w.code !== "calendar-years-mapped").map((w) => `<p class="import-note">${esc(t(w.code))}</p>`).join("")}${draft.result.mappingRecommended && draft.result.columnCount > 0 ? `<details class="mapping"><summary>${t("advancedMapping")}</summary><p>${t("mappingHelp")}</p><div class="import-defaults">${draft.result.columnMapping.map((m, i) => label(t("column") + " " + (i + 1), `<select data-map="${i}"><option value="">${t("ignoreColumn")}</option>${["name", "credits", "grade", "year", "semester"].map((field) => `<option value="${field}" ${m === field ? "selected" : ""}>${t(field === "credits" ? "creditPoints" : field)}</option>`).join("")}</select>`)).join("")}</div>${button("applyMapping", t("applyMapping"))}</details>` : ""}</section><form id="reviewForm"><div id="reviewRows">${groupedReviewCards()}</div></form>${draft.result.unparsedLines.length ? `<section class="card"><h3>${t("unparsedTitle")}</h3><p>${t("unparsedHelp")}</p>${draft.result.unparsedLines.map((l, i) => `<div class="unparsed-line"><pre>${esc(l.text)}</pre><small>${esc(t(l.reason))}</small>${button("recoverLine", t("addReviewRow"), `data-line="${i}"`)}</div>`).join("")}</section>` : ""}<section class="card"><h3>${t("normalizedTitle")}</h3><p id="previewError" role="status"></p><div id="duplicateWarnings"></div>${label(t("normalizedTitle"), `<textarea id="normalizedText" readonly rows="4" dir="auto"></textarea>`)}<div class="actions">${button("copyNormalized", t("copyNormalized"))}${button("reviewImport", t("importCourses"), 'class="primary"')}</div><p id="importCount" aria-live="polite"></p></section>` : ""}`;
+    `<div class="heading"><div>${button("leaveTextImport", t("back"))}<h1>${t("textImport")}</h1><p>${t("pasteHelp")}</p></div></div><section class="card"><div class="paste-heading"><h2>${t("pasteTitle")}</h2></div><details class="format-guide"><summary>${t("supportedFormats")}</summary><div><p>${t("formatsTables")}</p><pre dir="ltr">Creative Coding | 3 | 81</pre><p>${t("formatsLists")}</p><pre dir="ltr">Creative Coding 3 credits 81</pre><p>${t("formatsTranscripts")}</p><pre dir="auto">שנת לימודים 2030&#10;א 410101 יצירה דיגיטלית שיעור 3.0 3.0 81</pre><pre dir="ltr">ACADEMIC YEAR 2030&#10;Fall 410101 Creative Coding 3.0 81</pre><p>${t("formatsYears")}</p></div></details>${label(t("pasteLabel"), `<textarea id="pasteText" maxlength="50000" rows="7" dir="auto">${esc(draft.text)}</textarea>`)}<div class="actions">${button("parseText", t("parseText"), 'class="primary"')}${button("clearText", t("clearText"))}</div><p id="parseError" role="alert"></p></section>${draft.result ? `<section class="card"><h2>${t("reviewTitle")}</h2><p>${t("reviewHelp")}</p><div class="import-defaults">${label(t("targetDegree"), `<select id="importDegree">${data.degrees.map((d) => `<option value="${d.id}" ${d.id === draft.degreeId ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>`)}${label(t("defaultYear"), `<select id="defaultYear">${yearOptions(draft.defaultYear, false)}</select>`)}${label(t("defaultSemester"), `<select id="defaultSemester">${semesterOptions(draft.defaultYear, draft.defaultSemester, false)}</select>`)}</div>${calendarMappingPanel()}${[...new Set(draft.result.warnings.map(w => w.code).filter(code => !["calendar-years-mapped", "unparsed-line"].includes(code)))].map(code => `<p class="import-note">${esc(t(code))}</p>`).join("")}${draft.result.mappingRecommended && draft.result.columnCount > 0 ? `<details class="mapping"><summary>${t("advancedMapping")}</summary><p>${t("mappingHelp")}</p><div class="import-defaults">${draft.result.columnMapping.map((m, i) => label(t("column") + " " + (i + 1), `<select data-map="${i}"><option value="">${t("ignoreColumn")}</option>${["name", "credits", "grade", "year", "semester"].map((field) => `<option value="${field}" ${m === field ? "selected" : ""}>${t(field === "credits" ? "creditPoints" : field)}</option>`).join("")}</select>`)).join("")}</div>${button("applyMapping", t("applyMapping"))}</details>` : ""}</section><form id="reviewForm"><div id="reviewRows">${groupedReviewCards()}</div></form>${draft.result.unparsedLines.length ? `<section class="card"><details class="unparsed-section"><summary>${t("unparsedTitle")} (${draft.result.unparsedLines.length})</summary><p>${t("unparsedHelp")}</p>${draft.result.unparsedLines.map((l, i) => `<div class="unparsed-line"><pre>${esc(l.text)}</pre>${button("recoverLine", t("addReviewRow"), `data-line="${i}"`)}</div>`).join("")}</details></section>` : ""}<section class="card"><h3>${t("normalizedTitle")}</h3><p id="previewError" role="status"></p><div id="duplicateWarnings"></div>${label(t("normalizedTitle"), `<textarea id="normalizedText" readonly rows="4" dir="auto"></textarea>`)}<div class="actions">${button("copyNormalized", t("copyNormalized"))}${button("reviewImport", t("importCourses"), 'class="primary"')}</div><p id="importCount" aria-live="polite"></p></section>` : ""}`;
   if (draft.result) {
     validateReview();
     refreshImportPreview();
@@ -252,8 +254,13 @@ function importRequest(confirmed = false) {
       included: r.included,
     })),
     duplicatePolicy: importDraft.duplicatePolicy,
+    reviewToken: confirmed ? importDraft.preview?.reviewToken : null,
     confirmed,
   };
+}
+function importChangeSummary(p) {
+  const grade = (number, passed) => passed != null ? t(passed ? "passed" : "failed") : number ?? "—";
+  return `<div class="import-change-counts"><span>${t("addedCourses")}: <strong>${p.added}</strong></span><span>${t("updatedCourses")}: <strong>${p.updated}</strong></span><span>${t("unchangedCourses")}: <strong>${p.unchanged}</strong></span></div>${p.updates.length ? `<details class="mapping" open><summary>${t("updateDetails")}</summary>${p.updates.map(u => `<article class="import-update"><strong dir="auto">${esc(u.name)}</strong><small>${esc(yearName(u.year - 1))} · ${esc(semName({name:u.semester}))}</small><p>${t("grade")}: <bdi>${esc(grade(u.oldGrade,u.oldPassed))} → ${esc(grade(u.newGrade,u.newPassed))}</bdi> · ${t("creditPoints")}: <bdi>${u.oldCredits} → ${u.newCredits}</bdi></p>${u.replacesComponents ? `<p class="import-note">${t("replacesComponents")}</p>` : ""}${u.removedDuplicates ? `<p class="import-note">${t("mergesDuplicates")}</p>` : ""}</article>`).join("")}</details>` : ""}${p.repeatedRows.length ? `<p class="import-note">${t("repeatedRows")} <span dir="auto">${p.repeatedRows.map(esc).join(", ")}</span></p>` : ""}${p.count === 0 ? `<p>${t("alreadyCurrent")}</p>` : ""}`;
 }
 function validateReview() {
   let valid = true;
@@ -307,8 +314,9 @@ function validateReview() {
 async function refreshImportPreview() {
   const sequence = ++previewSequence;
   importDraft.preview = null;
-  if (!validateReview()) {
-    $("#previewError").textContent = t("fixBeforeImport");
+  if (!importDraft.rows.length || !validateReview()) {
+    $("#previewError").textContent = importDraft.rows.length ? t("fixBeforeImport") : "";
+    document.querySelector("[data-action=reviewImport]").disabled = true;
     $("#normalizedText").value = "";
     $("#importCount").textContent = "";
     $("#duplicateWarnings").replaceChildren();
@@ -325,9 +333,8 @@ async function refreshImportPreview() {
     $("#previewError").textContent = "";
     $("#normalizedText").value = result.normalizedText;
     $("#importCount").textContent = `${t("countToImport")}: ${result.count}`;
-    $("#duplicateWarnings").innerHTML = result.duplicateNames.length
-      ? `<div class="import-note"><strong>${t("duplicatesTitle")}</strong><p>${result.duplicateNames.map(esc).join(", ")}</p><p>${t("duplicatesHelp")}</p>${label(t("duplicatesTitle"), `<select id="duplicatePolicy"><option value="skip" ${importDraft.duplicatePolicy === "skip" ? "selected" : ""}>${t("skipDuplicates")}</option><option value="import" ${importDraft.duplicatePolicy === "import" ? "selected" : ""}>${t("importDuplicates")}</option></select>`)}<small>${t("skippedDuplicates")}: ${result.skippedDuplicates}</small></div>`
-      : "";
+    $("#duplicateWarnings").innerHTML = importChangeSummary(result);
+    document.querySelector("[data-action=reviewImport]").disabled = result.count === 0;
   } catch (error) {
     if (sequence === previewSequence && importDraft)
       $("#previewError").textContent = t(error.message);
@@ -495,18 +502,18 @@ $("#app").addEventListener("click", async (event) => {
         toast(t("copyFailed"));
       }
     } else if (action === "reviewImport") {
-      if (!validateReview()) {
+      if (!importDraft.rows.length || !validateReview()) {
         $("#reviewForm").reportValidity();
         throw Error("fixBeforeImport");
       }
       await refreshImportPreview();
       const p = importDraft.preview;
-      if (!p || p.count === 0) throw Error("emptyImport");
+      if (!p || p.count === 0) throw Error(p?.unchanged ? "alreadyCurrent" : "emptyImport");
       const req = importRequest(true),
         target = importDegree().name;
       dialog(
         t("confirmImport"),
-        `<h3>${esc(target)}</h3><p>${t("countToImport")}: <strong>${p.count}</strong></p><p>${t("confirmText")}</p>${p.duplicateNames.length ? `<p class="import-note">${t("duplicatesTitle")}: ${p.duplicateNames.map(esc).join(", ")}<br>${t("skippedDuplicates")}: ${p.skippedDuplicates}</p>` : ""}${importDraft.rows.filter((r) => r.included).some((r) => r.warnings.length) ? `<p class="import-note">${[...new Set(importDraft.rows.filter((r) => r.included).flatMap((r) => r.warnings))].map((w) => esc(t(w))).join("<br>")}</p>` : ""}${importDraft.result.unparsedLines.length ? `<p class="import-note">${t("unparsedRemaining")}: ${importDraft.result.unparsedLines.length}</p>` : ""}`,
+        `<h3>${esc(target)}</h3><p>${t("countToImport")}: <strong>${p.count}</strong></p><p>${t("confirmText")}</p>${importChangeSummary(p)}${importDraft.rows.filter((r) => r.included).some((r) => r.warnings.length) ? `<p class="import-note">${[...new Set(importDraft.rows.filter((r) => r.included).flatMap((r) => r.warnings))].map((w) => esc(t(w))).join("<br>")}</p>` : ""}${importDraft.result.unparsedLines.length ? `<p class="import-note">${t("unparsedRemaining")}: ${importDraft.result.unparsedLines.length}</p>` : ""}`,
         async () => {
           $("#save").disabled = true;
           try {

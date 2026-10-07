@@ -44,7 +44,7 @@ Supported formats include pipes (`Creative Coding | 3 | 81`), CSV including quot
 
 Hebrew and English academic transcripts are also supported: `שנת לימודים 2030` / `ACADEMIC YEAR 2030`, course codes, א/ב/ק or Fall/Spring/Summer, optional repeated credits, and reversed English rows. Calendar-year sections and table year cells receive suggested degree-year destinations, preserving year gaps. Use the editable Academic year mapping controls to set, for example, 2030 → Year 2 and 2031 → Year 3 for all courses in those years. Explicit headings such as `2030 - first year` are recognized. Missing or ambiguous credits remain blank and require correction. The paste screen includes a collapsed supported-format guide.
 
-This is a conservative local heuristic parser, not arbitrary natural-language understanding. Uncertain values retain their original text and warnings; unparsed lines remain visible and can become manual review cards. An advanced column-mapping fallback appears when needed. Unknown destinations can use defaults; missing years and standard semesters (A, B, Summer) are created only after confirmed import. Likely duplicates in the same semester can be skipped or imported as additional courses, never overwritten. The read-only normalized preview can be copied. Limits: 50,000 characters and 1,000 non-empty lines per paste.
+This is a conservative local heuristic parser, not arbitrary natural-language understanding. Uncertain values retain their original text and warnings; unsupported rows appear once in an expandable section and can become manual review cards. An advanced column-mapping fallback appears when needed. Unknown destinations can use defaults; missing years and standard semesters (A, B, Summer) are created only after confirmed import. Reimporting the same course in the same year and semester leaves identical data unchanged. Changed credits or grades update the existing course only after a final confirmation showing the old and new values. Courses in other semesters remain separate, and courses absent from the import are preserved. If the paste repeats a course in one destination, the last included row wins. Existing component grades are preserved when their final grade matches; replacing a different component grade is explicitly flagged in the confirmation. The read-only normalized preview can be copied. Limits: 50,000 characters and 1,000 non-empty lines per paste.
 
 Transcript course types include lectures, seminars and workshops. "Completed" and "השלים חובותיו" are imported as binary Passed grades: their credits count toward progress, while they stay out of numeric averages and grade distributions. "טרם" and "No grade" remain ungraded. Passed/Failed can also be selected in the course editor. Missing credits still require correction.
 
@@ -91,5 +91,8 @@ Fresh captures from the current GradePilot release. All course names and grades 
 ![Hebrew review with summer displayed as קיץ](screenshots/11-hebrew-review.png)
 ![Binary Passed import and correctly detected destinations](screenshots/12-binary-grade-review.png)
 ![Import review grouped by year and semester](screenshots/13-grouped-import.png)
+![Unsupported rows in one expandable section](screenshots/14-unsupported-rows.png)
+![Confirm changes before updating saved courses](screenshots/15-reimport-confirmation.png)
+![Identical reimport leaves saved courses unchanged](screenshots/16-reimport-unchanged.png)
 
 </details>
