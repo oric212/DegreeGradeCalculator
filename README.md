@@ -2,6 +2,10 @@
 
 A local-first degree grade calculator for Windows, with a clean blue browser interface and first-class Hebrew and English support. No accounts, cloud services, or separate database installation.
 
+## Why I built GradePilot
+
+I built GradePilot out of frustration with the grade-calculation tools I tried. They had ads or other drawbacks that made a simple task harder than it needed to be. I wanted a clean, local app where I could track my degree, calculate averages, and try different grades without those distractions.
+
 ## Using the Windows release
 
 Open `release/parser-win-x64/DegreeGradeCalculator.exe` by double-clicking. Keep the entire release folder together: it contains the bundled .NET runtime, SQLite library, and browser assets. The executable starts a loopback-only server on an available port and opens your default browser without a terminal window. Opening it again brings up the existing instance. Use **Close app** to shut down; closing the browser alone leaves the server running.
@@ -42,6 +46,8 @@ Hebrew and English academic transcripts are also supported: `שנת לימודי
 
 This is a conservative local heuristic parser, not arbitrary natural-language understanding. Uncertain values retain their original text and warnings; unparsed lines remain visible and can become manual review cards. An advanced column-mapping fallback appears when needed. Unknown destinations can use defaults; destination years and semesters must already exist. Likely duplicates in the same semester can be skipped or imported as additional courses, never overwritten. The read-only normalized preview can be copied. Limits: 50,000 characters and 1,000 non-empty lines per paste.
 
+Transcript course types include lectures, seminars and workshops. Statuses "טרם", "השלים חובותיו", "No grade" and "Completed" produce blank numeric grades (excluded from averages), with the status preserved in the review source. Missing credits still require correction.
+
 ## Developers
 
 Stack: .NET 10, ASP.NET Core/Kestrel, Microsoft.Data.Sqlite, SQLite, vanilla HTML/CSS/JavaScript, xUnit. No Node build or runtime requirement.
@@ -60,34 +66,28 @@ Parser contract: `POST /api/import/parse-text` accepts `{ "text": "..." }` and a
 
 ## Screenshots
 
-Captured from the running application with fictitious demo data. No database or personal records are included.
+Fresh captures from the current GradePilot release. All course names and grades are fictional demo data; no personal records are shown.
 
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](screenshots/01-home.png)
 
 <details>
-<summary>Degree layout, components, and simulation</summary>
+<summary>Degree, course options, components, and simulation</summary>
 
-![Degree page](screenshots/degree-view.png)
-![Course options](screenshots/course-options.png)
-![Course components](screenshots/course-components.png)
-![Simulation](screenshots/simulation.png)
+![Degree page](screenshots/02-degree.png)
+![Course menu](screenshots/03-course-menu.png)
+![Component grades](screenshots/04-components.png)
+![Simulation](screenshots/05-simulation.png)
 
 </details>
 
 <details>
-<summary>Text import: paste, review, and confirm</summary>
+<summary>Import grades: paste, map, review, and confirm</summary>
 
-![Text input](screenshots/text-parser.png)
-![Editable parsed courses](screenshots/text-parser-preview.png)
-![Import confirmation](screenshots/import-confirmation.png)
-![Hebrew review](screenshots/text-parser-hebrew.png)
+![Empty paste field](screenshots/06-import-paste.png)
+![Supported formats](screenshots/07-format-guide.png)
+![Adjustable year mapping](screenshots/08-year-mapping.png)
+![Editable review](screenshots/09-import-review.png)
+![Confirmation](screenshots/10-import-confirmation.png)
+![Hebrew review with summer displayed as קיץ](screenshots/11-hebrew-review.png)
 
 </details>
-
-![Supported formats guide](screenshots/supported-formats.png)
-
-![Adjustable academic year mapping](screenshots/year-mapping.png)
-
-Transcript course types include lectures, seminars and workshops. Statuses "טרם", "השלים חובותיו", "No grade" and "Completed" produce blank numeric grades (excluded from averages), with the status preserved in the review source. Missing credits still require correction.
-
-All screenshots and format examples use fictional demonstration courses and invented grades. The import paste box starts empty; examples are kept in the expandable guide.
