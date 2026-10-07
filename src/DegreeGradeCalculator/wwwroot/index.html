@@ -17,14 +17,13 @@
     </header>
     <main id="app"></main>
     <input type="file" id="file" accept="application/json,.json" hidden />
-    <dialog id="languageDialog" aria-labelledby="languageTitle">
+    <div id="languageDialog" popover="auto" role="dialog" aria-labelledby="languageTitle">
       <h2 id="languageTitle">Language / שפה</h2>
       <div class="language-options">
-        <button type="button" data-language="en" lang="en" dir="ltr">English</button>
-        <button type="button" data-language="he" lang="he" dir="rtl">עברית</button>
+        <button type="button" data-language="en" lang="en">English</button>
+        <button type="button" data-language="he" lang="he">עברית</button>
       </div>
-      <form method="dialog"><button class="language-close">Close / סגירה</button></form>
-    </dialog>
+    </div>
     <dialog id="dialog">
       <form id="form">
         <div id="fields"></div>

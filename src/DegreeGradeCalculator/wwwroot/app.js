@@ -268,6 +268,7 @@ function render() {
   document.documentElement.dir = data.language === "he" ? "rtl" : "ltr";
   $("#language").setAttribute("aria-label", t("language"));
   $("#language").title = t("language");
+  $("#languageTitle").textContent = t("language");
   ["export", "import", "shutdown"].forEach(
     (k) => ($("#" + k).textContent = t(k)),
   );
@@ -668,13 +669,20 @@ $("#app").addEventListener("click", async (e) => {
 $("#language").onclick = () => {
   document.querySelectorAll("[data-language]").forEach(button =>
     button.setAttribute("aria-pressed", String(button.dataset.language === data.language)));
-  $("#languageDialog").showModal();
+  const panel = $("#languageDialog"), anchor = $("#language").getBoundingClientRect();
+  panel.style.left = Math.max(12, Math.min(anchor.left, window.innerWidth - 232)) + "px";
+  panel.style.top = anchor.bottom + 8 + "px";
+  panel.togglePopover();
 };
+$("#languageDialog").addEventListener("toggle", event => {
+  $("#language").setAttribute("aria-expanded", String(event.newState === "open"));
+});
 document.querySelectorAll("[data-language]").forEach(button => {
   button.onclick = async () => {
     try {
       await change(() => { data.language = button.dataset.language; });
-      $("#languageDialog").close();
+      $("#languageDialog").hidePopover();
+      $("#language").focus();
     } catch (error) { toast(error.message); }
   };
 });

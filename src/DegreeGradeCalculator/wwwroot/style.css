@@ -412,12 +412,15 @@ header .brand, header nav { direction: ltr; }
 header nav { display: grid; grid-template-columns: 44px 125px 125px 105px; }
 header nav button { font-size: 14px; padding: 9px 10px; white-space: nowrap; min-height: 44px; }
 #language { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; }
-#languageDialog { width: min(300px, calc(100% - 32px)); padding: 24px; }
-#languageDialog h2 { font-size: 19px; }
-.language-options { display: grid; gap: 10px; margin-block: 20px; }
-.language-options button { padding: 12px; }
-.language-options button[aria-pressed="true"] { background: #e7f0ff; border-color: #245dc1; font-weight: 600; }
-.language-close { width: 100%; font-size: 13px; }
+#language { border-color: transparent; background: transparent; color: #58739a; }
+#language:hover, #language[aria-expanded="true"] { background: #edf4ff; color: #173b70; }
+#languageDialog { position: fixed; inset: auto; margin: 0; width: min(220px, calc(100vw - 24px)); padding: 8px; border: 1px solid #dfe8f5; border-radius: 14px; background: white; color: #172d50; box-shadow: 0 8px 28px #173b7020; }
+#languageDialog h2 { font-size: 12px; font-weight: 600; color: #71839b; padding: 8px 12px; margin: 0 0 4px; }
+.language-options { display: grid; gap: 2px; }
+.language-options button { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 0; border-radius: 8px; text-align: start; background: transparent; }
+.language-options button:hover { background: #f1f6fc; }
+.language-options button[aria-pressed="true"] { color: #245dc1; font-weight: 600; background: #edf4ff; }
+.language-options button[aria-pressed="true"]::after { content: '✓'; font-size: 14px; }
 @media (max-width: 650px) {
   header { align-items: stretch; }
   header .brand { align-self: flex-start; }
