@@ -8,7 +8,7 @@ I built GradePilot because I was frustrated with the solutions I tried. Ads and 
 
 ## Getting started
 
-Download the [Windows release](https://github.com/oric212/DegreeGradeCalculator/releases/tag/1.0), extract it, and open **DegreeGradeCalculator.exe**. Keep the whole folder together.
+Download the [Windows release](https://github.com/oric212/GradePilot/releases/tag/1.0), extract it, and open **GradePilot.exe**. Keep the whole folder together. The compressed executable includes .NET and its dependencies, so there is nothing else to install.
 
 Add a degree, then enter courses or use **Import grades**. The app opens in your browser, but your data stays on your computer. Closing the last app tab shuts down the local server; multiple tabs and page refresh are supported.
 
@@ -51,7 +51,7 @@ dotnet build
 dotnet test
 node --test tests/frontend.test.cjs # Optional frontend checks
 dotnet run --project src/DegreeGradeCalculator
-dotnet publish src/DegreeGradeCalculator -c Release -r win-x64 --self-contained true -o release/GradePilot
+dotnet publish src/DegreeGradeCalculator -p:PublishProfile=Windows -o release/GradePilot
 ```
 
 For unattended runs, use `--no-browser` or set `LocalAppMode=false` to disable browser-session shutdown. `GRADEPILOT_DATA` selects an isolated data folder for testing.
@@ -82,6 +82,10 @@ A walkthrough using a fictional **Digital Arts · Demo** degree. All course name
 **Start simulation** to compare a prominent hypothetical average with the smaller saved average in a light blue card.
 
 ![Simulation comparison](screenshots/05-simulation.jpg)
+
+**Adjust grades with compact blue controls.** Reset sits beside the signed buttons and restores that course or component.
+
+![Simulation adjustment buttons and separate reset](screenshots/20-simulation-buttons.jpg)
 
 **Changed courses receive a blue highlight.** Manually returning to the original grade or pressing Reset removes the highlight and changed count.
 

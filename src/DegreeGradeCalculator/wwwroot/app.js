@@ -376,7 +376,7 @@ function semesterManagementMenu(sem) {
 }
 
 function simControls(c, g, i) {
-  return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" dir="ltr" min="0" max="100" step="any" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `dir="ltr" data-delta="${n}" ${simulationBumpEnabled(g, n) ? "" : "disabled"}`)).join("")}${button("reset", t("reset"))}</div>`;
+  return `<div class="quick" data-course="${c.id}" data-component="${i}"><input aria-label="${esc(c.name + " " + (i >= 0 ? c.components[i].name + " " : "") + t("grade"))}" type="number" dir="ltr" min="0" max="100" step="any" value="${g ?? ""}" data-sim-input>${[5, 1, -1, -5].map((n) => button("bump", (n > 0 ? "+" : "") + n, `dir="ltr" data-delta="${n}" ${simulationBumpEnabled(g, n) ? "" : "disabled"}`)).join("")}${button("reset", "↺ " + t("reset"))}</div>`;
 }
 function degreeOptions(d) {
   return `<details class="course-menu degree-menu"><summary aria-label="${esc(t("degreeOptions") + ": " + d.name)}" title="${esc(t("degreeOptions"))}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary><div class="course-menu-actions">${button("editDegree", t("edit"), `data-id="${d.id}"`)}${button("deleteDegree", t("delete"), `class="danger" data-id="${d.id}"`)}</div></details>`;

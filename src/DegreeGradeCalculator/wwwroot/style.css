@@ -274,7 +274,43 @@ p {
   width: 85px;
 }
 .quick button {
-  padding: 5px 10px;
+  min-height: 38px;
+  min-width: 44px;
+  padding: 7px 12px;
+  border-radius: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.quick button[data-action="bump"] {
+  background: #173b70;
+  color: #fff;
+  border: 1px solid #173b70;
+  box-shadow: 0 2px 4px #173b7014;
+}
+.quick button[data-action="bump"]:hover:not(:disabled) {
+  background: #24569a;
+  border-color: #24569a;
+}
+.quick button[data-action="bump"]:disabled {
+  background: #e8eef7;
+  color: #8595ae;
+  border-color: #e1e8f3;
+  opacity: 1;
+  box-shadow: none;
+}
+.quick button[data-action="reset"] {
+  margin-inline-start: 6px;
+  background: #eef4fd;
+  color: #315c91;
+  border: 1px solid #d8e5f7;
+  font-weight: 600;
+}
+.quick button[data-action="reset"]:hover {
+  background: #dfebfc;
+}
+.quick button:focus-visible {
+  outline: 3px solid #6b9ee2;
+  outline-offset: 3px;
 }
 .empty {
   text-align: center;
